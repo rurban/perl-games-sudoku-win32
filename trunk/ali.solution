@@ -1,0 +1,83 @@
++---+---+---+
+|5..|..8|9..|
+|4..|...|.8.|
+|82.|.5.|1.7|
++---+---+---+
+|.92|...|..8|
+|654|81.|7..|
+|3.8|...|...|
++---+---+---+
+|246|389|571|
+|..5|..7|8..|
+|.8.|541|2.6|
++---+---+---+
+
+#   123 456 789
+#  +---+---+---+
+#  |5..|..8|9..|1
+#  |...|...|...|2
+#  |82.|.5.|1.7|3
+#  +---+---+---+
+#  |.92|...|..8|4
+#  |...|.1.|7..|5
+#  |3.8|...|...|6
+#  +---+---+---+
+#  |.4.|3.9|...|7
+#  |..5|..7|8..|8
+#  |...|5..|2.6|9
+#  +---+---+---+
+# rule one_missing
+# rule one_candidate
+# found one_candidate 5 at 60 (7/7)
+# found one_candidate 1 at 62 (7/9)
+# found one_candidate 7 at 61 (7/8)
+# found one_candidate 6 at 56 (7/3)
+# found one_candidate 4 at 38 (5/3)
+# found one_candidate 2 at 54 (7/1)
+# found one_candidate 8 at 58 (7/5)
+# found one_candidate 4 at 76 (9/5)
+# found one_candidate 1 at 77 (9/6)
+# found one_candidate 6 at 36 (5/1)
+# found one_candidate 5 at 37 (5/2)
+# rule single_candidate
+# found single_candidate 4 in col 0 at 9 (2/1)
+# found single_candidate 8 in col 1 at 73 (9/2)
+# found single_candidate 8 in col 3 at 39 (5/4)
+# found single_candidate 8 in squ 2 at 16 (2/8)
+# rule naked_pairs
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (1,7) in squ 3 at 27 (4/1), 46 (6/2)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# found two naked_pairs (2,6) in squ 7 at 66 (8/4), 67 (8/5)
+# 39 solved, 42 left, 46 candidates
+# rule one_missing
+# rule one_candidate
+# rule single_candidate
+# rule naked_pairs
+# 39 solved, 42 left, 46 candidates
+# ------------------------
+# []    [1367] [137]  |[12467] [2367]   []       	|[] [2346] [234]
+# [179] [1367] [1379] |[12679] [23679] [236]	|[36] [2356] [235]
+# []    []     [39]   |[469]     []          [346] 	|[] [346] []
+# ------------------------
+# [17]   []    []     |[467]     [367]     [3456]      	|[346] [13456] []
+# []     []    []     |[29]       []          [23] 		|[] [239] [239]
+# []     [17]  []     |[24679] [2679] [2456]        |[46] [124569] [2459]
+# ------------------------
+# []     []    []     |[]   []   []       			|[] [] []
+# [19]   [13]  []     |[26] [26] []         		|[] [349] [349]
+# [79]   [37]  [379]  |[]   []   []       			|[] [39] []
