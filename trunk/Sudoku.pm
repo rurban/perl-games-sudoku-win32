@@ -830,17 +830,17 @@ sub solve {
       }
     }
     $s->Show unless $opts{nogui};
-    #if ($lasttry and $solved == count(@{$s->{board}}) and $newcands == $cands) {
-    #  print "failed to solve Sudoku! Need more solver rules.\n",$s->{init}," init, ",
-    #    $solved, " solved, ", 81-$solved, " left, $newcands candidates\n";
-    #  $s->ShowCands if $Verbosity >= 2;
-    #  return $s;
-    #}
-    #if ($solved == count(@{$s->{board}}) and $newcands == $cands) {
-    #  $lasttry++;
-    #}
-    #$solved = count(@{$s->{board}});
-    #$cands = $newcands;
+    if ($lasttry and $solved == count(@{$s->{board}}) and $newcands == $cands) {
+      print "failed to solve Sudoku! Need more solver rules.\n",$s->{init}," init, ",
+        $solved, " solved, ", 81-$solved, " left, $newcands candidates\n";
+      $s->ShowCands if $Verbosity >= 2;
+      return $s;
+    }
+    if ($solved == count(@{$s->{board}}) and $newcands == $cands) {
+      $lasttry++;
+    }
+    $solved = count(@{$s->{board}});
+    $cands = $newcands;
     if (!$cands) {
       print "all candidates solved";
       print ", find the rest" if $solved < 81;
@@ -1122,14 +1122,14 @@ sub ShowCands {
     }
     if (1) { # ascii art
       #indent by max length per col
-      print "\n\t------------------------" unless $i % 27;
-      print "\n" unless $i % 9;
-      print "\t|" unless $i % 3;
       my $in = $max{which_col($i)} - @c;
+      print "\n\t"."-"x60 unless $i % 27;
+      print "\n" unless $i % 9;
+      print "\t| " unless $i % 3;
       print "[",join("",@c),"] "." "x$in;
     }
   }
-  print "\n\t------------------------";
+  print "\n\t"."-"x60;
   if ($W and $s->{cheating}) {
     # flip status
     if ($s->{showcands}) {

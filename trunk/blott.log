@@ -1,0 +1,286 @@
+Load sudoku file blott.sudoku
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|...|...|...|
+|75.|...|.23|
++---+---+---+
+|..4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|.35|7.1|69.|
++---+---+---+
+rule one_missing
+validate
+rule one_candidate
+found one_candidate 6 at 23 (3/6)
+remove candidate 6 from row at 20 (3/3)
+remove candidate 6 from row at 21 (3/4)
+remove candidate 6 from row at 22 (3/5)
+remove candidate 6 from row at 23 (3/6)
+remove candidate 6 from col at 14 (2/6)
+remove candidate 6 from col at 41 (5/6)
+remove candidate 6 from col at 59 (7/6)
+remove candidate 6 from col at 68 (8/6)
+remove candidate 6 from squ at 4 (1/5)
+remove candidate 6 from squ at 12 (2/4)
+remove candidate 6 from squ at 13 (2/5)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|...|...|...|
+|75.|..6|.23|
++---+---+---+
+|..4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|.35|7.1|69.|
++---+---+---+
+found one_candidate 2 at 72 (9/1)
+remove candidate 2 from row at 72 (9/1)
+remove candidate 2 from row at 76 (9/5)
+remove candidate 2 from row at 80 (9/9)
+remove candidate 2 from col at 63 (8/1)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|...|...|...|
+|75.|..6|.23|
++---+---+---+
+|..4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 2, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+found single_candidate 5 in col 0 at 27 (4/1)
+remove candidate 5 from row at 27 (4/1)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|...|...|...|
+|75.|..6|.23|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 4 in squ 0 at 10 (2/2)
+remove candidate 4 from row at 10 (2/2)
+remove candidate 4 from row at 15 (2/7)
+remove candidate 4 from row at 17 (2/9)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|.4.|...|...|
+|75.|..6|.23|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 4 in squ 2 at 24 (3/7)
+remove candidate 4 from row at 24 (3/7)
+remove candidate 4 from col at 69 (8/7)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|.4.|...|...|
+|75.|..6|423|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 1 in row 2 at 22 (3/5)
+remove candidate 1 from row at 22 (3/5)
+remove candidate 1 from col at 13 (2/5)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|.4.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 5 in row 6 at 59 (7/6)
+remove candidate 5 from row at 59 (7/6)
+remove candidate 5 from col at 68 (8/6)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|.4.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 5, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+validate
+rule naked_pairs
+found two naked_pairs (8,9) in row 2 at 20 (3/3), 21 (3/4)
+remove candidates (8,9) from row(2) at 18 (3/1)
+remove candidates (8,9) from row(2) at 19 (3/2)
+remove candidates (8,9) from row(2) at 22 (3/5)
+remove candidates (8,9) from row(2) at 23 (3/6)
+remove candidates (8,9) from row(2) at 24 (3/7)
+remove candidates (8,9) from row(2) at 25 (3/8)
+remove candidates (8,9) from row(2) at 26 (3/9)
+found two naked_pairs (2,3) in row 7 at 68 (8/6), 69 (8/7)
+remove candidates (2,3) from row(7) at 63 (8/1)
+remove candidates (2,3) from row(7) at 64 (8/2)
+remove candidates (2,3) from row(7) at 65 (8/3)
+remove candidates (2,3) from row(7) at 66 (8/4)
+remove candidates (2,3) from row(7) at 67 (8/5)
+remove candidates (2,3) from row(7) at 70 (8/8)
+remove candidates (2,3) from row(7) at 71 (8/9)
+found two naked_pairs (4,8) in row 8 at 76 (9/5), 80 (9/9)
+remove candidates (4,8) from row(8) at 72 (9/1)
+remove candidates (4,8) from row(8) at 73 (9/2)
+remove candidates (4,8) from row(8) at 74 (9/3)
+remove candidates (4,8) from row(8) at 75 (9/4)
+remove candidates (4,8) from row(8) at 77 (9/6)
+remove candidates (4,8) from row(8) at 78 (9/7)
+remove candidates (4,8) from row(8) at 79 (9/8)
+validate
+rule hidden_pairs
+validate
+rule hidden_triples
+validate
+rule locked_candidate_1
+found locked_candidate 2 at col 4 in square 4
+remove locked_candidate 2 at col 4 outside square 4 at 13 (2/5) (square 1)
+remove locked_candidate 2 at col 4 outside square 4 at 58 (7/5) (square 7)
+found locked_candidate 3 at col 6 in square 8
+remove locked_candidate 3 at col 6 outside square 8 at 42 (5/7) (square 5)
+validate
+rule locked_candidate_2
+found locked_candidate 3 at square 4 in row 4
+remove locked_candidate 3 at square 4 outside row 4 at 31 (4/5)
+validate
+38 solved, 43 left, 43 candidates
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+found single_candidate 3 in col 7 at 34 (4/8)
+remove candidate 3 from row at 34 (4/8)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|.4.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|73.|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 1, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+validate
+rule naked_pairs
+validate
+rule hidden_pairs
+validate
+rule hidden_triples
+validate
+rule locked_candidate_1
+validate
+rule locked_candidate_2
+validate
+failed to solve Sudoku! Need more solver rules.
+ init, 39 solved, 42 left, 42 candidates
+
+candidates:
+	------------------------
+	|[369]  []    []      	|[]     [39]   []    	|[]   []   [69]   
+	|[3689] []    [689]   	|[2389] [3789] [237] 	|[19] [56] [1569] 
+	|[]     []    [89]    	|[89]   []     []    	|[]   []   []     
+	------------------------
+	|[]     [69]  []      	|[]     [26]   []    	|[]   []   [269]  
+	|[1689] []    [16789] 	|[36]   []     [37]  	|[19] []   [1689] 
+	|[168]  [67]  []      	|[]     [267]  []    	|[]   [68] [1268] 
+	------------------------
+	|[]     []    [69]    	|[2369] [369]  []    	|[23] []   []     
+	|[169]  [679] [1679]  	|[689]  [4689] [23]  	|[23] [58] [458]  
+	|[]     []    []      	|[]     [48]   []    	|[]   []   [48]   
+	------------------------
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|.4.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|73.|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+Sudoku file blott.solution written
