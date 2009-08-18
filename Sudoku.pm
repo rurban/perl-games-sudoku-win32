@@ -1048,15 +1048,19 @@ sub Show {
   for my $i (0 .. 80) {
     my $b = $board[$i] ? $board[$i] : ".";
     unless ($W) { # ascii art
-      print "\n------------" unless $i % 27;
-      print "|\n" unless $i % 9;
+      unless ($i % 27) {
+        print "|" if $i;
+        print "\n+---+---+---+\n";
+      } else {
+        print "|\n" unless $i % 9;
+      }
       print "|" unless $i % 3;
       print $b;
     } else { # update gui for board
       $Board->{"Label_$i"}->Text("$b");
     }
   }
-  print "\n------------\n" unless $W;
+  print "|\n+---+---+---+\n" unless $W;
   $Board->Show() if $Board;
   $W->Show() if $W;
   $W->Update() if $W;
@@ -1232,12 +1236,16 @@ sub save {
   for my $i (0..80) {
     my $b = $G->{board}->[$i];
     $b =~ s/0/./;
-    print F "|"  unless $i % 3;
-    print F "\n" unless $i % 9;
-    print F "---+---+---+\n" unless $i % 27;
+    unless ($i % 27) {
+      print F "|\n" if $i;
+      print F "+---+---+---+\n";
+    } else {
+      print F "|\n" unless $i % 9;
+    }
+    print F "|" unless $i % 3;
     print F $b;
   }
-  print F "\n---+---+---+";
+  print F "|\n+---+---+---+\n";
   close F;
   status "Sudoku file $file written";
 }
@@ -1308,7 +1316,7 @@ $W = 0;
 GetOptions(\%opts,
            "verbose|v=i",
            "cheat!",
-           "gui!",
+           "nogui!",
            "solve!",
            "save=s",
           );
@@ -1332,7 +1340,7 @@ if (@ARGV) {
 } else {
   $G->open_file("blott.sudoku");
 }
-$W = $G->gui_init if $opts{nogui};
+$W = $G->gui_init unless $opts{nogui};
 $G->Show();
 $G->solve() if (!$W or $opts{solve});
 $G->Show() if (!$W or $opts{solve});
