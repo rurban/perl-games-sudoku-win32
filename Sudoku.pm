@@ -18,7 +18,7 @@ Games::Sudoku::Win32
 
 =head1 DESCRIPTION
 
-Solve and play a Soduko game on Win32
+Solve and play a Soduko game, with optional Win32 GUI
 
 =head1 FUNCTIONS
 
@@ -173,7 +173,8 @@ sub new {
   my $args = { board      => [@board],
                candidates => [],
                rules      => [qw(one_missing one_candidate single_candidate
-                                 naked_pairs hidden_pairs hidden_triples)], #
+                                 naked_pairs hidden_pairs hidden_triples
+                                 locked_candidate_1 )], #locked_candidate_2
                init       => count(@board),
              };
   my $obj = bless $args, $s;
@@ -337,6 +338,8 @@ sub found ($$$) {
   $s->{board}->[$i] = $f;
   # remove the candidate $f at i
   $s->{candidates}->[$i] = []; #[ grep { $f != $_ } @{$s->{candidates}->[$i]} ];
+  $s->validate if $Verbosity >= 3 and !$s->{init};
+  $s->Show if $Verbosity >= 2 and !$s->{init};
   #status "found $f at $i" unless $s->{init} and $Verbosity < 2;
   $s;
 }
@@ -357,8 +360,9 @@ sub one_candidate {
   while ($found) {
     $found = 0;
     for my $i (0..80) {
-      if (@{$s->{candidates}->[$i]} == 1) {
-        my $v = $s->{candidates}->[$i]->[0];
+      my @c = @{$s->{candidates}->[$i]};
+      if (@c == 1) {
+        my $v = $c[0];
         status "found one_candidate $v at ".at_i($i) if $Verbosity >= 1;
         $s = $s->found($i,$v);
         $found++;
@@ -425,8 +429,9 @@ sub unique{
 
 =item RULE ->single_candidate
 
-For each row, col and square look for a single candidate, where
-the list of candidates is of length 1.
+For each row, col and square look for a single candidate in the whole group
+i.e. the list of candidates is of length 1.
+Also called "hidden_single"
 
 =cut
 
@@ -495,8 +500,10 @@ sub naked_pairs {
         my $pair_b1 = $pair[0]->{b1};
         my $pair_b2 = $pair[0]->{b2};
         my $r = &{"which_".$row}($j);
+        next NEXT if $s->{naked}->{$pair_i1}->{$pair_i2};
         status "found two naked_pairs ($pair_b1,$pair_b2) in $row $r at ".at_i($pair_i1).", ".at_i($pair_i2)
           if $Verbosity >= 1;
+        $s->{naked}->{$pair_i1}->{$pair_i2}++;
         # delete it from the other candidates
         for my $i (&{$row."_i"}($j)) {
           if ($i != $pair_i1 and $i != $pair_i2) {
@@ -578,7 +585,7 @@ sub hidden_pairs {
 
 =item RULE ->hidden_triples
 
-If three cells in a group contain a hriple of candidates
+If three cells in a group contain a triple of candidates
 (hidden amongst other candidates) that are not found in
 any other cells in that group, then other candidates in
 those three cells can be excluded safely.
@@ -626,36 +633,139 @@ sub hidden_triples {
 
 =pod
 
-=item RULE ->locked_candidates
+=item RULE ->locked_candidate_1
 
-Sometimes a candidate within a box is restricted to one
+Sometimes a candidate within a square is restricted to one
 row or column. Since one of these cells must contain that
 specific candidate, the candidate can safely be excluded
 from the remaining cells in that row or column outside of
 the box.
 
-http://www.angusj.com/sudoku/hints.php
-
-Same for a candidate within a row or column is restricted
-to one box. Since one of these cells must contain that
-specific candidate, the candidate can safely be excluded
-from the remaining cells in the box.
-
-Not needed for now, unimplemented.
+See L<http://www.angusj.com/sudoku/hints.php>
 
 =cut
 
-sub locked_candidates {
-  shift;
+# returns 1 if the list consists only of unique values, otherwise 0.
+# return 1 on length 0 or 1
+sub uniq (@) {
+  return 1 if @_ < 2;
+  my $prev = shift;
+  for my $i (@_) {
+    return 0 if $i != $prev;
+  }
+  return 1;
+}
+
+sub locked_candidate_1 {
+  my $s = shift;
+  my @board = @{$s->{board}};
+  for my $r (0..8) {
+   SQUARE:
+    my %h;
+    for my $i (i_squ($r)) {
+      my @c = @{$s->{candidates}->[$i]};
+      # count candidates per square
+      for my $c (@c) {
+        # $h{$c}->{i} = [];
+        push @{$h{$c}->{i}}, ($i);
+        push @{$h{$c}->{row}}, (which_row($i));
+        push @{$h{$c}->{col}}, (which_col($i));
+        $h{$c}->{c}++;
+      }
+    }
+    for my $row (qw(row col)) {
+      my $found;
+      # check candidates to be only in a single row or col
+      for my $v (1..9) {
+        next unless defined $h{$v}->{$row};
+        next unless uniq(@{$h{$v}->{$row}});
+        my $r1 = $h{$v}->{$row}->[0];
+        next if $s->{locked}->{$v}->{$r}->{$row}->{$r1};
+        no strict 'refs';
+        for my $j (&{"i_".$row}($r1)) {
+          if (!inarray($j, @{$h{$v}->{i}}) and inarray($v, @{$s->{candidates}->[$j]})) {
+            status "found locked_candidate $v at $row $r1 in square $r"
+              unless $s->{locked}->{$v}->{$r}->{$row}->{$r1};
+            $s->{locked}->{$v}->{$r}->{$row}->{$r1}++;
+            # remove from other rows in other squares
+            status "remove locked_candidate $v at $row $r1 outside square $r at ".at_i($j)
+              . " (square ".which_squ($j).")"
+              if $Verbosity >= 2;
+            $s->{candidates}->[$j] = [ grep { $v != $_ } @{$s->{candidates}->[$j]} ];
+          }
+        }
+      }
+    }
+  }
+  $s;
+}
+
+=pod
+
+=item RULE ->locked_candidate_2
+
+Same if a candidate within a row or column is restricted
+to one box. Since one of these cells must contain that
+specific candidate, the candidate can safely be excluded
+from the remaining cells in the box.
+See L<http://www.angusj.com/sudoku/hints.php>
+
+FIXME!
+
+=cut
+
+sub locked_candidate_2 {
+  my $s = shift;
+  my @board = @{$s->{board}};
+  for my $r (0..8) {
+   ROW:
+    my %h;
+    for my $row (qw(row col)) {
+      no strict 'refs';
+      for my $i (&{"i_".$row}($r)) {
+        my @c = @{$s->{candidates}->[$i]};
+        # count candidates per square
+        for my $c (@c) {
+          push @{$h{$c}->{i}}, ($i);
+          push @{$h{$c}->{squ}}, (which_squ($i));
+          $h{$c}->{c}++;
+        }
+      }
+      {
+        use strict 'refs';
+        my $found;
+        # check candidates to be only in square r
+        for my $v (1..9) {
+          next unless defined $h{$v}->{squ};
+          next unless uniq(@{$h{$v}->{squ}});
+
+          my $r1 = $h{$v}->{squ}->[0];
+          next if $s->{locked}->{$v}->{$r}->{squ}->{$r1};
+          for my $j (i_squ($r1)) {
+            if (!inarray($j, @{$h{$v}->{i}}) and inarray($v, @{$s->{candidates}->[$j]})) {
+              status "found locked_candidate $v at square $r1 in $row $r"
+                if !$s->{locked}->{$v}->{$r}->{squ}->{$r1} and $Verbosity >= 1;
+              $s->{locked}->{$v}->{$r}->{squ}->{$r1}++;
+              # remove from other rows/cols in this square
+              status "remove locked_candidate $v at square $r1 outside $row $r at ".at_i($j)
+                if $Verbosity >= 2;
+              $s->{candidates}->[$j] = [ grep { $v != $_ } @{$s->{candidates}->[$j]} ];
+            }
+          }
+        }
+      }
+    }
+  }
+  $s;
 }
 
 =pod
 
 =item solve
 
-Apply all rules until the board is filled => SUCCESS, 
-or for a FAILURE the number of candidates is the same as 
-in the previous round, and the number of found numbers 
+Apply all rules until the board is filled => SUCCESS,
+or for a FAILURE the number of candidates is the same as
+in the previous round, and the number of found numbers
 on the board stayed the same.
 
 On failure print the list of candidates for all board positions then
@@ -682,13 +792,14 @@ sub solve {
         $s->validate();
         return $m==$#rules?$rules[0]:$rules[$m+1];
       }
+      $s->validate() if $Verbosity >= 2;
     }
-    $s->Show;
+    $s->Show unless $opts{nogui};
     my $newcands = grep { @{$_} } @{$s->{candidates}};
     if ($lasttry and $solved == count(@{$s->{board}}) and $newcands == $cands) {
       print "failed to solve Sudoku! Need more solver rules.\n",$s->{init}," init, ",
         $solved, " solved, ", 81-$solved, " left, $newcands candidates\n";
-      $s->ShowCands;
+      $s->ShowCands if $Verbosity >= 2;
       return $s;
     }
     if ($solved == count(@{$s->{board}}) and $newcands == $cands) {
@@ -981,7 +1092,7 @@ sub ShowCands {
     }
   }
   print "\n\t------------------------";
-  if ($W) {
+  if ($W and $s->{cheating}) {
     # flip status
     if ($CandWin) {
       $CandWin->Update;
@@ -1121,11 +1232,12 @@ sub save {
   for my $i (0..80) {
     my $b = $G->{board}->[$i];
     $b =~ s/0/./;
-    print F "\n+---+---+---+" unless $i % 27;
-    print F "\n" unless $i % 9;
     print F "|"  unless $i % 3;
+    print F "\n" unless $i % 9;
+    print F "---+---+---+\n" unless $i % 27;
     print F $b;
   }
+  print F "\n---+---+---+";
   close F;
   status "Sudoku file $file written";
 }
@@ -1188,7 +1300,7 @@ sub Help_Help {
 =cut
 
 # Example if not loaded as Module
-# perl Sudoku.pm --v=2 --cheat 1.sudoku --solve
+# perl Sudoku.pm --v=2 --cheat 1.sudoku --solve --save=1.solution
 package main;
 use Getopt::Long;
 
@@ -1196,7 +1308,10 @@ $W = 0;
 GetOptions(\%opts,
            "verbose|v=i",
            "cheat!",
-           "solve!");
+           "gui!",
+           "solve!",
+           "save=s",
+          );
 $Verbosity = defined $opts{verbose} ? $opts{verbose} : 1;
 my $G = Games::Sudoku::Win32->new();
 $G->{cheating}=1 if $opts{cheat};
@@ -1217,8 +1332,9 @@ if (@ARGV) {
 } else {
   $G->open_file("blott.sudoku");
 }
-$W = $G->gui_init;
+$W = $G->gui_init if $opts{nogui};
 $G->Show();
 $G->solve() if (!$W or $opts{solve});
 $G->Show() if (!$W or $opts{solve});
+$G->save($opts{save}) if $opts{save} and $opts{solve};
 $W->Dialog() if $W;
