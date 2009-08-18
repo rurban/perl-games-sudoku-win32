@@ -26,10 +26,20 @@ Solve and play a Soduko game, with optional Win32 GUI
 
 =cut
 
+# inarray ignoring 0
 sub inarray ($@) {
   my $n = shift;
   for (@_) {
     next unless $_;
+    return 1 if $_ == $n;
+  }
+  0
+}
+
+# inarray including 0
+sub inarray_0 ($@) {
+  my $n = shift;
+  for (@_) {
     return 1 if $_ == $n;
   }
   0
@@ -135,14 +145,11 @@ sub i_col {
   my $r = shift;
   return ($r+0,$r+9,$r+18,$r+27,$r+36,$r+45,$r+54,$r+63,$r+72);
 }
+# i_squ(0) => 0,1,2 9,10,11 18,19,20, 1=> 345..., 2=> 678..., 3=> 21,22,23
 sub i_squ {
   my $r = shift;
-  my $i = int($r / 3) * 3;
-  my $j = int($r / 3) * 3;
-  my $x = $i + ($j * 9);
-  return ($x+0,$x+1,$x+2,$x+9,$x+10,$x+11,$x+18,$x+19,$x+20);
+  return squ_i(int($r / 3) * 27 + (($r % 3) * 3));
 }
-
 
 # return the list of missing values from 1..9
 # (1,5,2,3,6)
@@ -174,7 +181,8 @@ sub new {
                candidates => [],
                rules      => [qw(one_missing one_candidate single_candidate
                                  naked_pairs hidden_pairs hidden_triples
-                                 locked_candidate_1 )], #locked_candidate_2
+                                 locked_candidate_1 locked_candidate_2
+                                )], #
                init       => count(@board),
              };
   my $obj = bless $args, $s;
@@ -276,6 +284,7 @@ sub board ($$;$) {
 sub validate ($) {
   my $s = shift;
   my @board = @{$s->{board}};
+  status "validate" if $Verbosity >= 2;
   for my $row (qw(row col squ)) {
     for my $r (0..8) {
       no strict 'refs';
@@ -284,20 +293,22 @@ sub validate ($) {
       my @c = @{$s->{candidates}->[$j]};
       my @l = &{$row}($s,$j);   # values
       if ($board[$j]) {
-        (count(@l) > 1 and count(@l) <= 9) or die "1<@l<=9 $row $r at ".at_i($j);
-        inarray($board[$j],@l) or die "$board[$j] $row at ".at_i($j);
+        (count(@l) > 1 and count(@l) <= 9) or die "VALIDATE: 1<@l<=9 $row $r at ".at_i($j);
+        inarray($board[$j],@l) or die "VALIDATE: $board[$j] $row at ".at_i($j);
       } else {
-        count(@c) >= 1 or warn "no candidates [".join("",@c)."] $row $r at empty ".at_i($j);
+        count(@c) >= 1 
+          or warn "VALIDATE: no candidates [".join("",@c)."] $row $r at empty ".at_i($j);
       }
-      @l == 9 or die "@l<>9 at $j";
-      for (1..9) { count_of($_,@l) < 2 or die "count($_,@l) $row $r at ".at_i($j); }
-      count(@l) <= 9 or die "count(@l) $row $r at ".at_i($j);
+      @l == 9 or die "VALIDATE: @l<>9 at $j";
+      for (1..9) { count_of($_,@l) < 2
+                     or die "VALIDATE: count($_,@l) $row $r at ".at_i($j); }
+      count(@l) <= 9 or die "VALIDATE: count(@l) $row $r at ".at_i($j);
       # each value 1..9 is either in the group or in the candidates
       for my $v (1..9) {
         my @cands = map{ @{$s->{candidates}->[$_]} } @j;
         inarray($v,@l)
           or inarray($v,@cands)
-            or die "$v not in [ @l ] nor [ @cands ] $row $r at ".at_i($j);
+            or die "VALIDATE: $v not in [ @l ] nor cand [ @cands ]\n  $row $r at ".at_i($j);
       }
     }
   }
@@ -355,7 +366,6 @@ from the candidates (in all groups) to the board.
 
 sub one_candidate {
   my $s = shift;
-  my @board = @{$s->{board}};
   my $found = 1;
   while ($found) {
     $found = 0;
@@ -683,9 +693,12 @@ sub locked_candidate_1 {
         next if $s->{locked}->{$v}->{$r}->{$row}->{$r1};
         no strict 'refs';
         for my $j (&{"i_".$row}($r1)) {
-          if (!inarray($j, @{$h{$v}->{i}}) and inarray($v, @{$s->{candidates}->[$j]})) {
+          if (!inarray_0($j, @{$h{$v}->{i}})
+              and !inarray_0($j, i_squ($r))
+              and inarray_0($v, @{$s->{candidates}->[$j]}))
+          {
             status "found locked_candidate $v at $row $r1 in square $r"
-              unless $s->{locked}->{$v}->{$r}->{$row}->{$r1};
+              if !$s->{locked}->{$v}->{$r}->{$row}->{$r1} and $Verbosity >= 1;
             $s->{locked}->{$v}->{$r}->{$row}->{$r1}++;
             # remove from other rows in other squares
             status "remove locked_candidate $v at $row $r1 outside square $r at ".at_i($j)
@@ -742,7 +755,11 @@ sub locked_candidate_2 {
           my $r1 = $h{$v}->{squ}->[0];
           next if $s->{locked}->{$v}->{$r}->{squ}->{$r1};
           for my $j (i_squ($r1)) {
-            if (!inarray($j, @{$h{$v}->{i}}) and inarray($v, @{$s->{candidates}->[$j]})) {
+            no strict 'refs';
+            if (!inarray_0($j, @{$h{$v}->{i}})
+                and !inarray_0($j, &{"i_".$row}($r))
+                and inarray_0($v, @{$s->{candidates}->[$j]}))
+            {
               status "found locked_candidate $v at square $r1 in $row $r"
                 if !$s->{locked}->{$v}->{$r}->{squ}->{$r1} and $Verbosity >= 1;
               $s->{locked}->{$v}->{$r}->{squ}->{$r1}++;
@@ -782,6 +799,9 @@ sub solve {
   my $lasttry;
   my @rules = @{$s->{rules}};
   while ($solved < 81) {
+    my $newcands;
+    # TODO: 1st rule until no progress, then 2+1+2, then 3+1+2+3, ...
+  RULES:
     for my $m (0..$#rules) {
       my $meth = $rules[$m];
       next if $step and $step ne $meth;
@@ -793,20 +813,34 @@ sub solve {
         return $m==$#rules?$rules[0]:$rules[$m+1];
       }
       $s->validate() if $Verbosity >= 2;
+      $newcands = grep { @{$_} } @{$s->{candidates}};
+      if (count(@{$s->{board}}) > $solved
+          or $cands != $newcands)
+      {
+        if (count(@{$s->{board}}) > $solved) {
+          status "found ".(count(@{$s->{board}})-$solved).", restart at $rules[0]"
+            if $Verbosity > 0;
+        } elsif ($cands != $newcands) {
+          status "removed ".($cands-$newcands)." candidates, restart at $rules[0]"
+            if $Verbosity > 1;
+        }
+        $solved = count(@{$s->{board}});
+        $cands = $newcands;
+        goto RULES; # restart
+      }
     }
     $s->Show unless $opts{nogui};
-    my $newcands = grep { @{$_} } @{$s->{candidates}};
-    if ($lasttry and $solved == count(@{$s->{board}}) and $newcands == $cands) {
-      print "failed to solve Sudoku! Need more solver rules.\n",$s->{init}," init, ",
-        $solved, " solved, ", 81-$solved, " left, $newcands candidates\n";
-      $s->ShowCands if $Verbosity >= 2;
-      return $s;
-    }
-    if ($solved == count(@{$s->{board}}) and $newcands == $cands) {
-      $lasttry++;
-    }
-    $solved = count(@{$s->{board}});
-    $cands = $newcands;
+    #if ($lasttry and $solved == count(@{$s->{board}}) and $newcands == $cands) {
+    #  print "failed to solve Sudoku! Need more solver rules.\n",$s->{init}," init, ",
+    #    $solved, " solved, ", 81-$solved, " left, $newcands candidates\n";
+    #  $s->ShowCands if $Verbosity >= 2;
+    #  return $s;
+    #}
+    #if ($solved == count(@{$s->{board}}) and $newcands == $cands) {
+    #  $lasttry++;
+    #}
+    #$solved = count(@{$s->{board}});
+    #$cands = $newcands;
     if (!$cands) {
       print "all candidates solved";
       print ", find the rest" if $solved < 81;
@@ -930,28 +964,6 @@ sub gui_init {
   #$Board->SetBkColor(0xFFFFFF);
   $Board->ScaleHeight;
   my $sb = $W->AddStatusBar(-name => "Status");
-  if (1) { # FIXME: draw lines
-    my $DC = $Board->GetDC;
-    my $width   = $Board->ScaleWidth;
-    my $height  = $Board->ScaleHeight;
-    $DC->PaintRgn(CreateRectRgn Win32::GUI::Region(0,0,$width,$height));
-    # $DC->BackColor(0xFFFFFF);
-    my $Pen = new Win32::GUI::Pen(-color => [ 0x000000 ], -width => 3);
-    my $oldP = $DC->SelectObject($Pen);
-    $DC->BeginPath();
-    for my $x (0..2) {
-      $DC->MoveTo(0,      3*$x*$ts);
-      $DC->LineTo($width, 3*$x*$ts); #hor
-      $DC->MoveTo(3*$x*$ts, 0);
-      $DC->LineTo(3*$x*$ts, $height); #ver
-      #$DC->Line(0,3*$x*$ts,$width,3*$x*$ts);  #hor
-      #$DC->Line(3*$x*$ts,0,3*$x*$ts,$height); #ver
-    }
-    $DC->EndPath();
-    $DC->StrokePath();
-    $DC->SelectObject($oldP) if defined $oldP;
-    $Board->InvalidateRect(1);
-  }
 
   for my $x (0..8) {
     for my $y (0..8) {
@@ -1000,6 +1012,28 @@ sub gui_init {
       }
     }
   }
+  if (1) { # FIXME: draw lines
+    my $DC = $Board->GetDC;
+    my $width   = $Board->ScaleWidth;
+    my $height  = $Board->ScaleHeight;
+    $DC->PaintRgn(CreateRectRgn Win32::GUI::Region(0,0,$width,$height));
+    # $DC->BackColor(0xFFFFFF);
+    my $Pen = new Win32::GUI::Pen(-color => [ 0x000000 ], -width => 3);
+    my $oldP = $DC->SelectObject($Pen);
+    $DC->BeginPath();
+    for my $x (0..2) {
+      $DC->MoveTo(0,      3*$x*$ts);
+      $DC->LineTo($width, 3*$x*$ts); #hor
+      $DC->MoveTo(3*$x*$ts, 0);
+      $DC->LineTo(3*$x*$ts, $height); #ver
+      #$DC->Line(0,3*$x*$ts,$width,3*$x*$ts);  #hor
+      #$DC->Line(3*$x*$ts,0,3*$x*$ts,$height); #ver
+    }
+    $DC->EndPath();
+    $DC->StrokePath();
+    $DC->SelectObject($oldP) if defined $oldP;
+    $Board->InvalidateRect(1);
+  }
   $W->AddButton(
                 -pos   => [9*$ts + 20, $ts],
                 -width => 65,
@@ -1021,7 +1055,7 @@ sub gui_init {
                 -width => 65,
                 -name  => 'candidates',
                 -title  => 'Candidates',
-                -onClick => sub { $s->ShowCands; 3}
+                -onClick => sub { $s->{showcands} = !$s->{showcands}; $s->ShowCands; 3}
                 );
   }
   $s->Show();
@@ -1098,7 +1132,7 @@ sub ShowCands {
   print "\n\t------------------------";
   if ($W and $s->{cheating}) {
     # flip status
-    if ($CandWin) {
+    if ($s->{showcands}) {
       $CandWin->Update;
       $CandWin->Show;
       $CandWin->SetForegroundWindow;
