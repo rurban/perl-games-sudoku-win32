@@ -171,29 +171,12 @@ rule single_candidate
 validate
 rule naked_pairs
 found two naked_pairs (8,9) in row 2 at 20 (3/3), 21 (3/4)
-remove candidates (8,9) from row(2) at 18 (3/1)
-remove candidates (8,9) from row(2) at 19 (3/2)
-remove candidates (8,9) from row(2) at 22 (3/5)
-remove candidates (8,9) from row(2) at 23 (3/6)
-remove candidates (8,9) from row(2) at 24 (3/7)
-remove candidates (8,9) from row(2) at 25 (3/8)
-remove candidates (8,9) from row(2) at 26 (3/9)
 found two naked_pairs (2,3) in row 7 at 68 (8/6), 69 (8/7)
-remove candidates (2,3) from row(7) at 63 (8/1)
-remove candidates (2,3) from row(7) at 64 (8/2)
-remove candidates (2,3) from row(7) at 65 (8/3)
-remove candidates (2,3) from row(7) at 66 (8/4)
-remove candidates (2,3) from row(7) at 67 (8/5)
-remove candidates (2,3) from row(7) at 70 (8/8)
-remove candidates (2,3) from row(7) at 71 (8/9)
+remove 2 candidates (2,3) from row(7) at 66 (8/4)
+remove 2 candidates (2,3) from row(7) at 67 (8/5)
+remove 1 candidates (2,3) from row(7) at 70 (8/8)
+remove 1 candidates (2,3) from row(7) at 71 (8/9)
 found two naked_pairs (4,8) in row 8 at 76 (9/5), 80 (9/9)
-remove candidates (4,8) from row(8) at 72 (9/1)
-remove candidates (4,8) from row(8) at 73 (9/2)
-remove candidates (4,8) from row(8) at 74 (9/3)
-remove candidates (4,8) from row(8) at 75 (9/4)
-remove candidates (4,8) from row(8) at 77 (9/6)
-remove candidates (4,8) from row(8) at 78 (9/7)
-remove candidates (4,8) from row(8) at 79 (9/8)
 validate
 rule hidden_pairs
 validate
@@ -203,12 +186,36 @@ rule locked_candidate_1
 found locked_candidate 2 at col 4 in square 4
 remove locked_candidate 2 at col 4 outside square 4 at 13 (2/5) (square 1)
 remove locked_candidate 2 at col 4 outside square 4 at 58 (7/5) (square 7)
+remove locked_candidate 2 at col 4 outside square 4 at 67 (8/5) (square 7)
 found locked_candidate 3 at col 6 in square 8
 remove locked_candidate 3 at col 6 outside square 8 at 42 (5/7) (square 5)
 validate
 rule locked_candidate_2
 found locked_candidate 3 at square 4 in row 4
 remove locked_candidate 3 at square 4 outside row 4 at 31 (4/5)
+validate
+rule naked_triples
+found three naked_triples (3,6,9) in row 0 at 0 (1/1), 4 (1/5), 8 (1/9)
+found three naked_triples (6,7,9) in col 1 at 28 (4/2), 46 (6/2), 64 (8/2)
+found three naked_triples (6,8,9) in col 2 at 11 (2/3), 20 (3/3), 56 (7/3)
+remove candidate 6 from col 2 at 38 (5/3)
+remove candidate 8 from col 2 at 38 (5/3)
+remove candidate 9 from col 2 at 38 (5/3)
+remove candidate 6 from col 2 at 65 (8/3)
+remove candidate 9 from col 2 at 65 (8/3)
+found three naked_triples (2,3,7) in col 5 at 14 (2/6), 41 (5/6), 68 (8/6)
+validate
+rule naked_quads
+found four naked_quads (2,3,6,9) in row 3 at 28 (4/2), 31 (4/5), 34 (4/8), 35 (4/9)
+found four naked_quads (2,3,6,9) in row 6 at 56 (7/3), 57 (7/4), 58 (7/5), 60 (7/7)
+found four naked_quads (1,2,3,9) in col 6 at 15 (2/7), 42 (5/7), 60 (7/7), 69 (8/7)
+found four naked_quads (3,5,6,8) in col 7 at 16 (2/8), 34 (4/8), 52 (6/8), 70 (8/8)
+found four naked_quads (3,6,8,9) in squ 0 at 0 (1/1), 9 (2/1), 11 (2/3), 20 (3/3)
+found four naked_quads (1,5,6,9) in squ 2 at 8 (1/9), 15 (2/7), 16 (2/8), 17 (2/9)
+found four naked_quads (2,3,6,7) in squ 4 at 31 (4/5), 39 (5/4), 41 (5/6), 49 (6/5)
+found four naked_quads (1,6,7,9) in squ 6 at 56 (7/3), 63 (8/1), 64 (8/2), 65 (8/3)
+validate
+rule hidden_quads
 validate
 38 solved, 43 left, 43 candidates
 rule one_missing
@@ -248,26 +255,36 @@ validate
 rule hidden_triples
 validate
 rule locked_candidate_1
+found locked_candidate 8 at col 0 in square 3
+remove locked_candidate 8 at col 0 outside square 3 at 9 (2/1) (square 0)
 validate
 rule locked_candidate_2
 validate
+rule naked_triples
+found three naked_triples (2,6,9) in row 3 at 28 (4/2), 31 (4/5), 35 (4/9)
+found three naked_triples (5,6,8) in col 7 at 16 (2/8), 52 (6/8), 70 (8/8)
+validate
+rule naked_quads
+validate
+rule hidden_quads
+validate
 failed to solve Sudoku! Need more solver rules.
- init, 39 solved, 42 left, 42 candidates
+39 solved, 42 left, 42 candidates
 
 candidates:
-	------------------------
-	|[369]  []    []      	|[]     [39]   []    	|[]   []   [69]   
-	|[3689] []    [689]   	|[2389] [3789] [237] 	|[19] [56] [1569] 
-	|[]     []    [89]    	|[89]   []     []    	|[]   []   []     
-	------------------------
-	|[]     [69]  []      	|[]     [26]   []    	|[]   []   [269]  
-	|[1689] []    [16789] 	|[36]   []     [37]  	|[19] []   [1689] 
-	|[168]  [67]  []      	|[]     [267]  []    	|[]   [68] [1268] 
-	------------------------
-	|[]     []    [69]    	|[2369] [369]  []    	|[23] []   []     
-	|[169]  [679] [1679]  	|[689]  [4689] [23]  	|[23] [58] [458]  
-	|[]     []    []      	|[]     [48]   []    	|[]   []   [48]   
-	------------------------
+	------------------------------------------------------------
+	| [369]  []    []    	| []     [39]   []    	| []   []   [69]   
+	| [369]  []    [689] 	| [2389] [3789] [237] 	| [19] [56] [1569] 
+	| []     []    [89]  	| [89]   []     []    	| []   []   []     
+	------------------------------------------------------------
+	| []     [69]  []    	| []     [26]   []    	| []   []   [269]  
+	| [1689] []    [17]  	| [36]   []     [37]  	| [19] []   [1689] 
+	| [168]  [67]  []    	| []     [267]  []    	| []   [68] [1268] 
+	------------------------------------------------------------
+	| []     []    [69]  	| [2369] [369]  []    	| [23] []   []     
+	| [169]  [679] [17]  	| [2689] [4689] [23]  	| [23] [58] [458]  
+	| []     []    []    	| []     [48]   []    	| []   []   [48]   
+	------------------------------------------------------------
 
 board:
 +---+---+---+
@@ -283,4 +300,3 @@ board:
 |...|...|...|
 |235|7.1|69.|
 +---+---+---+
-Sudoku file blott.solution written
