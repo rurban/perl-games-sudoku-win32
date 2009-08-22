@@ -18,17 +18,17 @@ rule one_missing
 validate
 rule one_candidate
 found one_candidate 6 at 23 (3/6)
-remove candidate 6 from row at 20 (3/3)
-remove candidate 6 from row at 21 (3/4)
-remove candidate 6 from row at 22 (3/5)
-remove candidate 6 from row at 23 (3/6)
-remove candidate 6 from col at 14 (2/6)
-remove candidate 6 from col at 41 (5/6)
-remove candidate 6 from col at 59 (7/6)
-remove candidate 6 from col at 68 (8/6)
-remove candidate 6 from squ at 4 (1/5)
-remove candidate 6 from squ at 12 (2/4)
-remove candidate 6 from squ at 13 (2/5)
+remove candidate 6 from row 2 at 20 (3/3)
+remove candidate 6 from row 2 at 21 (3/4)
+remove candidate 6 from row 2 at 22 (3/5)
+remove candidate 6 from row 2 at 23 (3/6)
+remove candidate 6 from col 5 at 14 (2/6)
+remove candidate 6 from col 5 at 41 (5/6)
+remove candidate 6 from col 5 at 59 (7/6)
+remove candidate 6 from col 5 at 68 (8/6)
+remove candidate 6 from squ 1 at 4 (1/5)
+remove candidate 6 from squ 1 at 12 (2/4)
+remove candidate 6 from squ 1 at 13 (2/5)
 
 board:
 +---+---+---+
@@ -45,10 +45,10 @@ board:
 |.35|7.1|69.|
 +---+---+---+
 found one_candidate 2 at 72 (9/1)
-remove candidate 2 from row at 72 (9/1)
-remove candidate 2 from row at 76 (9/5)
-remove candidate 2 from row at 80 (9/9)
-remove candidate 2 from col at 63 (8/1)
+remove candidate 2 from row 8 at 72 (9/1)
+remove candidate 2 from row 8 at 76 (9/5)
+remove candidate 2 from row 8 at 80 (9/9)
+remove candidate 2 from col 0 at 63 (8/1)
 
 board:
 +---+---+---+
@@ -71,53 +71,19 @@ validate
 rule one_candidate
 validate
 rule single_candidate
-found single_candidate 5 in col 0 at 27 (4/1)
-remove candidate 5 from row at 27 (4/1)
+found single_candidate 4 in row 2 at 24 (3/7)
+remove candidate 4 from row 2 at 24 (3/7)
+remove candidate 4 from col 6 at 15 (2/7)
+remove candidate 4 from col 6 at 69 (8/7)
+remove candidate 4 from squ 2 at 17 (2/9)
 
 board:
 +---+---+---+
 |.12|5.4|87.|
 |...|...|...|
-|75.|..6|.23|
-+---+---+---+
-|5.4|1.8|7..|
-|.2.|.5.|.4.|
-|..3|4.9|5..|
-+---+---+---+
-|48.|...|.17|
-|...|...|...|
-|235|7.1|69.|
-+---+---+---+
-found single_candidate 4 in squ 0 at 10 (2/2)
-remove candidate 4 from row at 10 (2/2)
-remove candidate 4 from row at 15 (2/7)
-remove candidate 4 from row at 17 (2/9)
-
-board:
-+---+---+---+
-|.12|5.4|87.|
-|.4.|...|...|
-|75.|..6|.23|
-+---+---+---+
-|5.4|1.8|7..|
-|.2.|.5.|.4.|
-|..3|4.9|5..|
-+---+---+---+
-|48.|...|.17|
-|...|...|...|
-|235|7.1|69.|
-+---+---+---+
-found single_candidate 4 in squ 2 at 24 (3/7)
-remove candidate 4 from row at 24 (3/7)
-remove candidate 4 from col at 69 (8/7)
-
-board:
-+---+---+---+
-|.12|5.4|87.|
-|.4.|...|...|
 |75.|..6|423|
 +---+---+---+
-|5.4|1.8|7..|
+|..4|1.8|7..|
 |.2.|.5.|.4.|
 |..3|4.9|5..|
 +---+---+---+
@@ -126,13 +92,30 @@ board:
 |235|7.1|69.|
 +---+---+---+
 found single_candidate 1 in row 2 at 22 (3/5)
-remove candidate 1 from row at 22 (3/5)
-remove candidate 1 from col at 13 (2/5)
+remove candidate 1 from row 2 at 22 (3/5)
+remove candidate 1 from col 4 at 13 (2/5)
 
 board:
 +---+---+---+
 |.12|5.4|87.|
-|.4.|...|...|
+|...|...|...|
+|75.|.16|423|
++---+---+---+
+|..4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|...|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 5 in row 3 at 27 (4/1)
+remove candidate 5 from row 3 at 27 (4/1)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|...|...|...|
 |75.|.16|423|
 +---+---+---+
 |5.4|1.8|7..|
@@ -144,8 +127,25 @@ board:
 |235|7.1|69.|
 +---+---+---+
 found single_candidate 5 in row 6 at 59 (7/6)
-remove candidate 5 from row at 59 (7/6)
-remove candidate 5 from col at 68 (8/6)
+remove candidate 5 from row 6 at 59 (7/6)
+remove candidate 5 from col 5 at 68 (8/6)
+
+board:
++---+---+---+
+|.12|5.4|87.|
+|...|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 4 in col 1 at 10 (2/2)
+remove candidate 4 from row 1 at 10 (2/2)
 
 board:
 +---+---+---+
@@ -179,6 +179,8 @@ remove 1 candidates (2,3) from row(7) at 71 (8/9)
 found two naked_pairs (4,8) in row 8 at 76 (9/5), 80 (9/9)
 validate
 rule hidden_pairs
+found two hidden_pairs (8,9) in row 2 at 20 (3/3), 21 (3/4)
+found two hidden_pairs (8,4) in row 8 at 76 (9/5), 80 (9/9)
 validate
 rule hidden_triples
 validate
@@ -194,42 +196,129 @@ rule locked_candidate_2
 found locked_candidate 3 at square 4 in row 4
 remove locked_candidate 3 at square 4 outside row 4 at 31 (4/5)
 validate
-rule naked_triples
-found three naked_triples (3,6,9) in row 0 at 0 (1/1), 4 (1/5), 8 (1/9)
-found three naked_triples (6,7,9) in col 1 at 28 (4/2), 46 (6/2), 64 (8/2)
-found three naked_triples (6,8,9) in col 2 at 11 (2/3), 20 (3/3), 56 (7/3)
-remove candidate 6 from col 2 at 38 (5/3)
-remove candidate 8 from col 2 at 38 (5/3)
-remove candidate 9 from col 2 at 38 (5/3)
-remove candidate 6 from col 2 at 65 (8/3)
-remove candidate 9 from col 2 at 65 (8/3)
-found three naked_triples (2,3,7) in col 5 at 14 (2/6), 41 (5/6), 68 (8/6)
-validate
-rule naked_quads
-found four naked_quads (2,3,6,9) in row 3 at 28 (4/2), 31 (4/5), 34 (4/8), 35 (4/9)
-found four naked_quads (2,3,6,9) in row 6 at 56 (7/3), 57 (7/4), 58 (7/5), 60 (7/7)
-found four naked_quads (1,2,3,9) in col 6 at 15 (2/7), 42 (5/7), 60 (7/7), 69 (8/7)
-found four naked_quads (3,5,6,8) in col 7 at 16 (2/8), 34 (4/8), 52 (6/8), 70 (8/8)
-found four naked_quads (3,6,8,9) in squ 0 at 0 (1/1), 9 (2/1), 11 (2/3), 20 (3/3)
-found four naked_quads (1,5,6,9) in squ 2 at 8 (1/9), 15 (2/7), 16 (2/8), 17 (2/9)
-found four naked_quads (2,3,6,7) in squ 4 at 31 (4/5), 39 (5/4), 41 (5/6), 49 (6/5)
-found four naked_quads (1,6,7,9) in squ 6 at 56 (7/3), 63 (8/1), 64 (8/2), 65 (8/3)
-validate
 rule hidden_quads
 validate
-38 solved, 43 left, 43 candidates
+rule backtrack
+remove candidate 3 from row 0 at 0 (1/1)
+remove candidate 3 from row 0 at 4 (1/5)
+remove candidate 3 from col 4 at 13 (2/5)
+remove candidate 3 from col 4 at 58 (7/5)
+remove candidate 3 from squ 1 at 12 (2/4)
+remove candidate 3 from squ 1 at 14 (2/6)
+
+board:
++---+---+---+
+|.12|534|87.|
+|.4.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
 rule one_missing
 validate
 rule one_candidate
 validate
 rule single_candidate
-found single_candidate 3 in col 7 at 34 (4/8)
-remove candidate 3 from row at 34 (4/8)
+found single_candidate 3 in row 1 at 9 (2/1)
+remove candidate 3 from row 1 at 9 (2/1)
 
 board:
 +---+---+---+
-|.12|5.4|87.|
-|.4.|...|...|
+|.12|534|87.|
+|34.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|7..|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 3 in row 3 at 34 (4/8)
+remove candidate 3 from row 3 at 34 (4/8)
+
+board:
++---+---+---+
+|.12|534|87.|
+|34.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|73.|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 2, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+validate
+rule naked_pairs
+found two naked_pairs (6,9) in row 0 at 0 (1/1), 8 (1/9)
+validate
+rule hidden_pairs
+found two hidden_pairs (6,9) in row 0 at 0 (1/1), 8 (1/9)
+found two hidden_pairs (8,9) in row 2 at 20 (3/3), 21 (3/4)
+found two hidden_pairs (8,4) in row 8 at 76 (9/5), 80 (9/9)
+validate
+rule hidden_triples
+validate
+rule locked_candidate_1
+found locked_candidate 8 at col 2 in square 0
+remove locked_candidate 8 at col 2 outside square 0 at 38 (5/3) (square 3)
+validate
+rule locked_candidate_2
+validate
+rule hidden_quads
+validate
+rule backtrack
+remove candidate 6 from row 0 at 0 (1/1)
+remove candidate 6 from row 0 at 8 (1/9)
+remove candidate 6 from col 0 at 36 (5/1)
+remove candidate 6 from col 0 at 45 (6/1)
+remove candidate 6 from col 0 at 63 (8/1)
+remove candidate 6 from squ 0 at 11 (2/3)
+
+board:
++---+---+---+
+|612|534|87.|
+|34.|...|...|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|73.|
+|.2.|.5.|.4.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+rule one_missing
+found one_missing 9 in row 0 at 8 (1/9)
+remove candidate 9 from row 0 at 8 (1/9)
+remove candidate 9 from col 8 at 17 (2/9)
+remove candidate 9 from col 8 at 35 (4/9)
+remove candidate 9 from col 8 at 44 (5/9)
+remove candidate 9 from squ 2 at 15 (2/7)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|...|
 |75.|.16|423|
 +---+---+---+
 |5.4|1.8|73.|
@@ -245,51 +334,15 @@ found 1, restart at one_missing
 rule one_missing
 validate
 rule one_candidate
-validate
-rule single_candidate
-validate
-rule naked_pairs
-validate
-rule hidden_pairs
-validate
-rule hidden_triples
-validate
-rule locked_candidate_1
-found locked_candidate 8 at col 0 in square 3
-remove locked_candidate 8 at col 0 outside square 3 at 9 (2/1) (square 0)
-validate
-rule locked_candidate_2
-validate
-rule naked_triples
-found three naked_triples (2,6,9) in row 3 at 28 (4/2), 31 (4/5), 35 (4/9)
-found three naked_triples (5,6,8) in col 7 at 16 (2/8), 52 (6/8), 70 (8/8)
-validate
-rule naked_quads
-validate
-rule hidden_quads
-validate
-failed to solve Sudoku! Need more solver rules.
-39 solved, 42 left, 42 candidates
-
-candidates:
-	------------------------------------------------------------
-	| [369]  []    []    	| []     [39]   []    	| []   []   [69]   
-	| [369]  []    [689] 	| [2389] [3789] [237] 	| [19] [56] [1569] 
-	| []     []    [89]  	| [89]   []     []    	| []   []   []     
-	------------------------------------------------------------
-	| []     [69]  []    	| []     [26]   []    	| []   []   [269]  
-	| [1689] []    [17]  	| [36]   []     [37]  	| [19] []   [1689] 
-	| [168]  [67]  []    	| []     [267]  []    	| []   [68] [1268] 
-	------------------------------------------------------------
-	| []     []    [69]  	| [2369] [369]  []    	| [23] []   []     
-	| [169]  [679] [17]  	| [2689] [4689] [23]  	| [23] [58] [458]  
-	| []     []    []    	| []     [48]   []    	| []   []   [48]   
-	------------------------------------------------------------
+found one_candidate 1 at 15 (2/7)
+remove candidate 1 from row 1 at 15 (2/7)
+remove candidate 1 from row 1 at 17 (2/9)
+remove candidate 1 from col 6 at 42 (5/7)
 
 board:
 +---+---+---+
-|.12|5.4|87.|
-|.4.|...|...|
+|612|534|879|
+|34.|...|1..|
 |75.|.16|423|
 +---+---+---+
 |5.4|1.8|73.|
@@ -300,3 +353,785 @@ board:
 |...|...|...|
 |235|7.1|69.|
 +---+---+---+
+found one_candidate 9 at 42 (5/7)
+remove candidate 9 from row 4 at 36 (5/1)
+remove candidate 9 from row 4 at 38 (5/3)
+remove candidate 9 from row 4 at 42 (5/7)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|5.4|1.8|73.|
+|.2.|.5.|94.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 2, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+found single_candidate 9 in row 3 at 28 (4/2)
+remove candidate 9 from row 3 at 28 (4/2)
+remove candidate 9 from col 1 at 64 (8/2)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.2.|.5.|94.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|...|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 9 in col 0 at 63 (8/1)
+remove candidate 9 from row 7 at 63 (8/1)
+remove candidate 9 from row 7 at 65 (8/3)
+remove candidate 9 from row 7 at 66 (8/4)
+remove candidate 9 from row 7 at 67 (8/5)
+remove candidate 9 from squ 6 at 56 (7/3)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.2.|.5.|94.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|9..|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 1 in squ 6 at 65 (8/3)
+remove candidate 1 from row 7 at 65 (8/3)
+remove candidate 1 from col 2 at 38 (5/3)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.2.|.5.|94.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|9.1|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 7 in squ 6 at 64 (8/2)
+remove candidate 7 from row 7 at 64 (8/2)
+remove candidate 7 from col 1 at 46 (6/2)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.2.|.5.|94.|
+|..3|4.9|5..|
++---+---+---+
+|48.|..5|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+found single_candidate 6 in squ 6 at 56 (7/3)
+remove candidate 6 from row 6 at 56 (7/3)
+remove candidate 6 from row 6 at 57 (7/4)
+remove candidate 6 from row 6 at 58 (7/5)
+remove candidate 6 from col 2 at 38 (5/3)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.2.|.5.|94.|
+|..3|4.9|5..|
++---+---+---+
+|486|..5|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 5, restart at one_missing
+rule one_missing
+found one_missing 6 in col 1 at 46 (6/2)
+remove candidate 6 from row 5 at 46 (6/2)
+remove candidate 6 from row 5 at 49 (6/5)
+remove candidate 6 from row 5 at 52 (6/8)
+remove candidate 6 from row 5 at 53 (6/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.2.|.5.|94.|
+|.63|4.9|5..|
++---+---+---+
+|486|..5|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+validate
+found 1, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+found one_candidate 7 at 38 (5/3)
+remove candidate 7 from row 4 at 38 (5/3)
+remove candidate 7 from row 4 at 41 (5/6)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.5.|94.|
+|.63|4.9|5..|
++---+---+---+
+|486|..5|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 3 at 41 (5/6)
+remove candidate 3 from row 4 at 39 (5/4)
+remove candidate 3 from row 4 at 41 (5/6)
+remove candidate 3 from col 5 at 68 (8/6)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|5..|
++---+---+---+
+|486|..5|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 8 at 52 (6/8)
+remove candidate 8 from row 5 at 45 (6/1)
+remove candidate 8 from row 5 at 52 (6/8)
+remove candidate 8 from row 5 at 53 (6/9)
+remove candidate 8 from col 7 at 70 (8/8)
+remove candidate 8 from squ 5 at 44 (5/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|..5|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 9 at 58 (7/5)
+remove candidate 9 from row 6 at 57 (7/4)
+remove candidate 9 from row 6 at 58 (7/5)
+remove candidate 9 from col 4 at 13 (2/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|...|...|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 2 at 68 (8/6)
+remove candidate 2 from row 7 at 66 (8/4)
+remove candidate 2 from row 7 at 68 (8/6)
+remove candidate 2 from row 7 at 69 (8/7)
+remove candidate 2 from col 5 at 14 (2/6)
+remove candidate 2 from squ 7 at 57 (7/4)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|...|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 3 at 69 (8/7)
+remove candidate 3 from row 7 at 69 (8/7)
+remove candidate 3 from col 6 at 60 (7/7)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|3..|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 5 at 70 (8/8)
+remove candidate 5 from row 7 at 70 (8/8)
+remove candidate 5 from row 7 at 71 (8/9)
+remove candidate 5 from col 7 at 16 (2/8)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|...|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 7 at 14 (2/6)
+remove candidate 7 from row 1 at 13 (2/5)
+remove candidate 7 from row 1 at 14 (2/6)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|1..|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 6 at 16 (2/8)
+remove candidate 6 from row 1 at 16 (2/8)
+remove candidate 6 from row 1 at 17 (2/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|16.|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 5 at 17 (2/9)
+remove candidate 5 from row 1 at 17 (2/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|.53|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 6 at 39 (5/4)
+remove candidate 6 from row 4 at 39 (5/4)
+remove candidate 6 from row 4 at 44 (5/9)
+remove candidate 6 from col 3 at 66 (8/4)
+remove candidate 6 from squ 4 at 31 (4/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|94.|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 1 at 44 (5/9)
+remove candidate 1 from row 4 at 36 (5/1)
+remove candidate 1 from row 4 at 44 (5/9)
+remove candidate 1 from col 8 at 53 (6/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|.63|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 1 at 45 (6/1)
+remove candidate 1 from row 5 at 45 (6/1)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|58.|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 2 at 53 (6/9)
+remove candidate 2 from row 5 at 49 (6/5)
+remove candidate 2 from row 5 at 53 (6/9)
+remove candidate 2 from col 8 at 35 (4/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|.95|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 3 at 57 (7/4)
+remove candidate 3 from row 6 at 57 (7/4)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|.17|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 2 at 60 (7/7)
+remove candidate 2 from row 6 at 60 (7/7)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|..2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 8 at 66 (8/4)
+remove candidate 8 from row 7 at 66 (8/4)
+remove candidate 8 from row 7 at 67 (8/5)
+remove candidate 8 from row 7 at 71 (8/9)
+remove candidate 8 from col 3 at 12 (2/4)
+remove candidate 8 from col 3 at 21 (3/4)
+remove candidate 8 from squ 7 at 76 (9/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|35.|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 4 at 71 (8/9)
+remove candidate 4 from row 7 at 67 (8/5)
+remove candidate 4 from row 7 at 71 (8/9)
+remove candidate 4 from col 8 at 80 (9/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|7.1|69.|
++---+---+---+
+found one_candidate 4 at 76 (9/5)
+remove candidate 4 from row 8 at 76 (9/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|69.|
++---+---+---+
+found one_candidate 8 at 80 (9/9)
+remove candidate 8 from row 8 at 80 (9/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|..7|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 8 at 13 (2/5)
+remove candidate 8 from row 1 at 11 (2/3)
+remove candidate 8 from row 1 at 13 (2/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|.16|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 9 at 21 (3/4)
+remove candidate 9 from row 2 at 20 (3/3)
+remove candidate 9 from row 2 at 21 (3/4)
+remove candidate 9 from col 3 at 12 (2/4)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|916|423|
++---+---+---+
+|594|1.8|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 2 at 31 (4/5)
+remove candidate 2 from row 3 at 31 (4/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|916|423|
++---+---+---+
+|594|128|73.|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 6 at 35 (4/9)
+remove candidate 6 from row 3 at 35 (4/9)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|916|423|
++---+---+---+
+|594|128|736|
+|.27|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 8 at 36 (5/1)
+remove candidate 8 from row 4 at 36 (5/1)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|4.9|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 7 at 49 (6/5)
+remove candidate 7 from row 5 at 49 (6/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|479|582|
++---+---+---+
+|486|395|217|
+|971|8.2|354|
+|235|741|698|
++---+---+---+
+found one_candidate 6 at 67 (8/5)
+remove candidate 6 from row 7 at 67 (8/5)
+
+board:
++---+---+---+
+|612|534|879|
+|34.|.87|165|
+|75.|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|479|582|
++---+---+---+
+|486|395|217|
+|971|862|354|
+|235|741|698|
++---+---+---+
+found one_candidate 9 at 11 (2/3)
+remove candidate 9 from row 1 at 11 (2/3)
+
+board:
++---+---+---+
+|612|534|879|
+|349|.87|165|
+|75.|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|479|582|
++---+---+---+
+|486|395|217|
+|971|862|354|
+|235|741|698|
++---+---+---+
+found one_candidate 2 at 12 (2/4)
+remove candidate 2 from row 1 at 12 (2/4)
+
+board:
++---+---+---+
+|612|534|879|
+|349|287|165|
+|75.|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|479|582|
++---+---+---+
+|486|395|217|
+|971|862|354|
+|235|741|698|
++---+---+---+
+found one_candidate 8 at 20 (3/3)
+remove candidate 8 from row 2 at 20 (3/3)
+
+board:
++---+---+---+
+|612|534|879|
+|349|287|165|
+|758|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|479|582|
++---+---+---+
+|486|395|217|
+|971|862|354|
+|235|741|698|
++---+---+---+
+validate
+found 30, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+validate
+rule naked_pairs
+validate
+rule hidden_pairs
+validate
+rule hidden_triples
+validate
+rule locked_candidate_1
+validate
+rule locked_candidate_2
+validate
+rule hidden_quads
+validate
+rule backtrack
+validate
+all candidates solved
+81 solved, 0 left, 0 candidates
+validate
+found 40, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+validate
+rule naked_pairs
+validate
+rule hidden_pairs
+validate
+rule hidden_triples
+validate
+rule locked_candidate_1
+validate
+rule locked_candidate_2
+validate
+rule hidden_quads
+validate
+rule backtrack
+validate
+all candidates solved
+81 solved, 0 left, 0 candidates
+validate
+found 43, restart at one_missing
+rule one_missing
+validate
+rule one_candidate
+validate
+rule single_candidate
+validate
+rule naked_pairs
+validate
+rule hidden_pairs
+validate
+rule hidden_triples
+validate
+rule locked_candidate_1
+validate
+rule locked_candidate_2
+validate
+rule hidden_quads
+validate
+rule backtrack
+validate
+all candidates solved
+81 solved, 0 left, 0 candidates
+
+board:
++---+---+---+
+|612|534|879|
+|349|287|165|
+|758|916|423|
++---+---+---+
+|594|128|736|
+|827|653|941|
+|163|479|582|
++---+---+---+
+|486|395|217|
+|971|862|354|
+|235|741|698|
++---+---+---+
+Sudoku file blott.solution written
