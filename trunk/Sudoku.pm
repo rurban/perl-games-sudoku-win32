@@ -8,7 +8,7 @@ use File::Basename;
 
 use constant OUT_TT_PRECIS => 4;
 use constant FF_SWISS => 32;
-my ($W, $Board, $CandWin, $Menu, $Nextstep, $Verbosity, %opts);
+my ($W, $Board, $Menu, $Nextstep, $Verbosity, %opts);
 
 =pod
 
@@ -107,7 +107,7 @@ sub at_i ($) {
 
 =pod
 
-=item row_i(i) => list of indices
+=item row_i(i)/col_i/squ_i => list of indices
 
 row_i(0) => 0..8
 
@@ -136,6 +136,14 @@ sub squ_i {
   return ($x+0,$x+1,$x+2,$x+9,$x+10,$x+11,$x+18,$x+19,$x+20);
 }
 
+=pod
+
+=item i_row(r)/i_col/i_squ => row to list of indices
+
+the reverse: i_row(1) => 0..17
+
+=cut
+
 # the reverse: row to index
 sub i_row {
   my $r = shift;
@@ -151,9 +159,16 @@ sub i_squ {
   return squ_i(int($r / 3) * 27 + (($r % 3) * 3));
 }
 
-# return the list of missing values from 1..9
-# (1,5,2,3,6)
-# => (4,7,8,9)
+=pod
+
+=item missing(@) => @
+
+Return the list of missing values from 1..9
+(1,5,2,3,6)
+ => (4,7,8,9)
+
+=cut
+
 sub missing (@) {
   my (%h, @r);
   for (@_) { $h{$_}++ }
@@ -182,8 +197,8 @@ sub new {
                rules      => [qw(one_missing one_candidate single_candidate
                                  naked_pairs hidden_pairs hidden_triples
                                  locked_candidate_1 locked_candidate_2
-                                 naked_triples naked_quads hidden_quads
-                                )],
+                                  hidden_quads backtrack
+                                )], #naked_triples naked_quads
                init       => count(@board),
              };
   my $obj = bless $args, $s;
@@ -331,6 +346,7 @@ sub found ($$$) {
     no strict 'refs';
     for my $j (&{$row."_i"}($i)) {
       my @l = &{$row}($s,$i);
+      use strict 'refs';
       if ($j>80 or $j<0) {print "ERROR: $row $i=>$j\n"; next;}
       if (inarray($f,@l) and !$s->{init}) {
         $s->Show();
@@ -340,7 +356,9 @@ sub found ($$$) {
       if (@c and inarray($f,@c)) {
         $s->{candidates}->[$j] = [ grep { $f != $_ } @c ];
         if (!$s->{init} and $Verbosity > 1) {
-          status "remove candidate $f from $row at ".at_i($j)
+          no strict 'refs';
+          my $r = &{"which_".$row}($j);
+          status "remove candidate $f from $row $r at ".at_i($j)
             .($Verbosity > 2 ? ", remaining [".join("",@{$s->{candidates}->[$j]})."]" : "");
         }
       }
@@ -448,13 +466,11 @@ Also called "hidden_single"
 
 sub single_candidate {
   my $s = shift;
-  my @board = @{$s->{board}};
-  for my $j (0..80) {
-    my ($v,$i);
-    for my $row (qw(row col squ)) {
+  for my $row (qw(row col squ)) {
+    for my $r (0..8) {
+      my ($v,$i);
       no strict 'refs';
-      if (($v,$i) = $s->unique(&{$row."_i"}($j))) {
-        my $r = &{"which_".$row}($j);
+      while (($v,$i) = $s->unique(&{"i_".$row}($r))) {
         status "found single_candidate $v in $row $r at ".at_i($i) if $Verbosity >= 1;
         $s = $s->found($i,$v);
       }
@@ -493,12 +509,12 @@ Misses some in blott?
 
 sub naked_pairs {
   my $s = shift;
-  for my $j (0..80) {
-    NEXT:
-    for my $row (qw(row col squ)) {
+  for my $row (qw(row col squ)) {
+  ROW:
+    for my $r (0..8) {
       no strict 'refs';
       my (%h, @pair);
-      for my $i (&{$row."_i"}($j)) {
+      for my $i (&{"i_".$row}($r)) {
         my @c = @{$s->{candidates}->[$i]};  # always sorted
         next unless @c == 2;
         push @pair, ({i=>$i,b1=>$c[0],b2=>$c[1]});
@@ -506,19 +522,19 @@ sub naked_pairs {
       if (@pair == 2) {
         my $pair_i1 = $pair[0]->{i};
         my $pair_i2 = $pair[1]->{i};
-        next NEXT if $pair_i1 == $pair_i2;
-        next NEXT if $pair[0]->{b1} != $pair[1]->{b1};
-        next NEXT if $pair[0]->{b2} != $pair[1]->{b2};
+        next ROW if $pair_i1 == $pair_i2;
+        next ROW if $pair[0]->{b1} != $pair[1]->{b1};
+        next ROW if $pair[0]->{b2} != $pair[1]->{b2};
         my $pair_b1 = $pair[0]->{b1};
         my $pair_b2 = $pair[0]->{b2};
-        my $r = &{"which_".$row}($j);
-        next NEXT if $s->{naked}->{$pair_i1}->{$pair_i2};
+        #my $r = &{"which_".$row}($j);
+        next ROW if $s->{naked}->{$pair_i1}->{$pair_i2};
         status "found two naked_pairs ($pair_b1,$pair_b2) in $row $r at "
           .at_i($pair_i1).", ".at_i($pair_i2)
           if $Verbosity >= 1;
         $s->{naked}->{$pair_i1}->{$pair_i2}++;
         # delete it from the other candidates
-        for my $i (&{$row."_i"}($j)) {
+        for my $i (&{"i_".$row}($r)) {
           if ($i != $pair_i1 and $i != $pair_i2) {
             my @c = @{$s->{candidates}->[$i]};
             my $found;
@@ -554,46 +570,55 @@ L<http://www.angusj.com/sudoku/hints.php>
 
 sub unique_c{
   my $s = shift;
-  my (%h,@pair);
+  my $count = shift;
+  my (%h,@pair,@i);
   for my $i (@_) {
     for my $c (@{$s->{candidates}->[$i]}) {
-      $h{$c}->{i} = $i;
+      push @{$h{$c}->{i}}, ($i);
+      push @i, ($i);
       $h{$c}->{c}++;
     }
   }
   for my $c (keys %h) {
-    push @pair, ([$c, $h{$c}->{i}]) if $h{$c}->{c} == 1;
+    if ($h{$c}->{c} == $count) {
+      push @pair, ([$c, $h{$c}->{i}]);
+    }
   }
-  @pair;
+  @i = uniq(@i);
+  if ($count == @i and $count == @pair) {
+    return @pair;
+  } else {
+    return ();
+  }
 }
 
 sub hidden_pairs {
   my $s = shift;
-  for my $j (0..80) {
-    NEXT:
-    for my $row (qw(row col squ)) {
+  for my $row (qw(row col squ)) {
+    for my $r (0..8) {
       no strict 'refs';
       my (%h, @pair);
-      # check candidates for count==1 in the whole group. if 2 we have a hidden pair
-      @pair = $s->unique_c(&{$row."_i"}($j));
-      if (@pair == 2) {
-        my $pair_i1 = $pair[0]->[1];
-        my $pair_i2 = $pair[1]->[1];
-        die if $pair_i1 == $pair_i2;
-        my $pair_c1 = $pair[0]->[0];
-        my $pair_c2 = $pair[1]->[0];
-        my $r = &{"which_".$row}($j);
-        die "$pair_c1 == $pair_c2 in $row $r at ".at_i($pair_i1).", "
-          .at_i($pair_i2) if $pair_c1 == $pair_c2;
-        status "found two hidden_pairs ($pair_c1,$pair_c2) in $row $r at "
-          .at_i($pair_i1).", ".at_i($pair_i2)
+      # check candidates for count==2 in the whole group. if on 2 pairs we have a hidden pair
+      @pair = $s->unique_c(2,&{"i_".$row}($r));
+      next unless @pair;
+      my $pair_i1 = $pair[0]->[1]->[0];
+      my $pair_i2 = $pair[0]->[1]->[1];
+      die if $pair_i1 == $pair_i2;
+      my $pair_c1 = $pair[0]->[0];
+      my $pair_c2 = $pair[1]->[0];
+      #my $r = &{"which_".$row}($j);
+      die "$pair_c1 == $pair_c2 in $row $r at ".at_i($pair_i1).", "
+        .at_i($pair_i2) if $pair_c1 == $pair_c2;
+      status "found two hidden_pairs ($pair_c1,$pair_c2) in $row $r at "
+        .at_i($pair_i1).", ".at_i($pair_i2)
           if $Verbosity >= 1;
-        # delete other candidates from these two cells
-        for my $i ($pair_i1,$pair_i2) {
+      # delete other candidates from these two cells
+      for my $i ($pair_i1,$pair_i2) {
+        if (@{$s->{candidates}->[$i]} > 2) {
+          status "remove candidates unless ($pair_c1,$pair_c2) from $row $r at ".at_i($i)
+            if $Verbosity >= 2;
           $s->{candidates}->[$i] = [ grep { $pair_c1 != $_ } @{$s->{candidates}->[$i]} ];
           $s->{candidates}->[$i] = [ grep { $pair_c2 != $_ } @{$s->{candidates}->[$i]} ];
-          status "remove candidates unless ($pair_c1,$pair_c2) from $row($r) at ".at_i($i)
-            if $Verbosity >= 2;
         }
       }
     }
@@ -615,34 +640,41 @@ L<http://www.angusj.com/sudoku/hints.php>
 
 sub hidden_triples {
   my $s = shift;
-  for my $j (0..80) {
-    NEXT:
-    for my $row (qw(row col squ)) {
+  for my $row (qw(row col squ)) {
+    for my $r (0..8) {
       no strict 'refs';
       my (%h, @pair);
-      # check candidates for count==1 in the whole group. if 3 we have a hidden triple
-      @pair = $s->unique_c(&{$row."_i"}($j));
-      if (@pair == 3) {
-        my $pair_i1 = $pair[0]->[1];
-        my $pair_i2 = $pair[1]->[1];
-        my $pair_i3 = $pair[2]->[1];
-        die if $pair_i1 == $pair_i2 or $pair_i1 == $pair_i3;
-        my $pair_c1 = $pair[0]->[0];
-        my $pair_c2 = $pair[1]->[0];
-        my $pair_c3 = $pair[2]->[0];
-        my $r = &{"which_".$row}($j);
-        status "found three hidden_triples ($pair_c1,$pair_c2,$pair_c3) in $row $r at "
-          .at_i($pair_i1).", ".at_i($pair_i2)
+      # check candidates for count==3 in the whole group. if 3 we have a hidden triple
+      @pair = $s->unique_c(3,&{"i_".$row}($r));
+      next unless @pair;
+      my $pair_i1 = $pair[0]->[1]->[0];
+      my $pair_i2 = $pair[0]->[1]->[1];
+      my $pair_i3 = $pair[0]->[1]->[2];
+      #die if $pair_i1 == $pair_i2 or $pair_i1 == $pair_i3;
+      my $pair_c1 = $pair[0]->[0];
+      my $pair_c2 = $pair[1]->[0];
+      my $pair_c3 = $pair[2]->[0];
+      #my $r = &{"which_".$row}($j);
+      status "found three hidden_triples ($pair_c1,$pair_c2,$pair_c3) in $row $r at "
+        .at_i($pair_i1).", ".at_i($pair_i2)
           if $Verbosity >= 1;
-        # delete other candidates from these cells
-        for my $i ($pair_i1,$pair_i2,$pair_i3) {
-          $s->{candidates}->[$i] = [ grep { $pair_c1 != $_ } @{$s->{candidates}->[$i]} ];
-          $s->{candidates}->[$i] = [ grep { $pair_c2 != $_ } @{$s->{candidates}->[$i]} ];
-          $s->{candidates}->[$i] = [ grep { $pair_c3 != $_ } @{$s->{candidates}->[$i]} ];
-          status "remove candidates unless ($pair_c1,$pair_c2,$pair_c3) from $row($r) at "
-            .at_i($i)
-              if $Verbosity >= 2;
-        }
+      # delete other candidates from these cells
+      for my $i ($pair_i1,$pair_i2,$pair_i3) {
+        my $c = @{$s->{candidates}->[$i]};
+        $s->{candidates}->[$i] = [ grep { $pair_c1 != $_ } @{$s->{candidates}->[$i]} ];
+        my $rm = $c - @{$s->{candidates}->[$i]};
+        status "remove $rm candidates unless $pair_c1 from $row $r at ".at_i($i)
+          if $Verbosity >= 2 and $rm;
+        $c = @{$s->{candidates}->[$i]};
+        $s->{candidates}->[$i] = [ grep { $pair_c2 != $_ } @{$s->{candidates}->[$i]} ];
+        $rm = $c - @{$s->{candidates}->[$i]};
+        status "removed $rm candidates unless $pair_c2 from $row $r at ".at_i($i)
+          if $Verbosity >= 2 and $rm;
+        $c = @{$s->{candidates}->[$i]};
+        $s->{candidates}->[$i] = [ grep { $pair_c3 != $_ } @{$s->{candidates}->[$i]} ];
+        $rm = $c - @{$s->{candidates}->[$i]};
+        status "removed $rm candidates unless $pair_c3 from $row $r at ".at_i($i)
+          if $Verbosity >= 2 and $rm;
       }
     }
   }
@@ -651,51 +683,49 @@ sub hidden_triples {
 
 sub hidden_quads {
   my $s = shift;
-  for my $j (0..80) {
-    NEXT:
-    for my $row (qw(row col squ)) {
+  for my $row (qw(row col squ)) {
+    for my $r (0..8) {
       no strict 'refs';
       my (%h, @pair);
-      # check candidates for count==1 in the whole group. if 4 we have a hidden quad
-      @pair = $s->unique_c(&{$row."_i"}($j));
-      if (@pair == 4) {
-        my $pair_i1 = $pair[0]->[1];
-        my $pair_i2 = $pair[1]->[1];
-        my $pair_i3 = $pair[2]->[1];
-        my $pair_i4 = $pair[3]->[1];
-        die if $pair_i1 == $pair_i2 or $pair_i1 == $pair_i3 or $pair_i1 == $pair_i4;
-        my $pair_c1 = $pair[0]->[0];
-        my $pair_c2 = $pair[1]->[0];
-        my $pair_c3 = $pair[2]->[0];
-        my $pair_c4 = $pair[3]->[0];
-        my $r = &{"which_".$row}($j);
+      # check candidates for count==4 in the whole group. if 4 we have a hidden quad
+      @pair = $s->unique_c(4,&{"i_".$row}($r));
+      next unless @pair;
+      my $pair_i1 = $pair[0]->[1]->[0];
+      my $pair_i2 = $pair[0]->[1]->[1];
+      my $pair_i3 = $pair[0]->[1]->[2];
+      my $pair_i4 = $pair[0]->[1]->[3];
+      #my $pair_i1 = $pair[0]->[1];
+      #my $pair_i2 = $pair[1]->[1];
+      #my $pair_i3 = $pair[2]->[1];
+      #my $pair_i4 = $pair[3]->[1];
+      die if $pair_i1 == $pair_i2 or $pair_i1 == $pair_i3 or $pair_i1 == $pair_i4;
+      my $pair_c1 = $pair[0]->[0];
+      my $pair_c2 = $pair[1]->[0];
+      my $pair_c3 = $pair[2]->[0];
+      my $pair_c4 = $pair[3]->[0];
+      #my $r = &{"which_".$row}($j);
         status "found four hidden_quads ($pair_c1,$pair_c2,$pair_c3,$pair_c4) in $row $r at "
           .at_i($pair_i1).", ".at_i($pair_i2)
           if $Verbosity >= 1;
         # delete other candidates from these cells
         for my $i ($pair_i1,$pair_i2,$pair_i3,$pair_i4) {
-          if (inarray($pair_c1,@{$s->{candidates}->[$i]})) {
-            $s->{candidates}->[$i] = [ grep { $pair_c1 != $_ } @{$s->{candidates}->[$i]} ];
-            status "remove candidate $pair_c1 from $row $r at ".at_i($i)
-              if $Verbosity >= 2;
-          }
-          if (inarray($pair_c2,@{$s->{candidates}->[$i]})) {
-            $s->{candidates}->[$i] = [ grep { $pair_c2 != $_ } @{$s->{candidates}->[$i]} ];
-            status "remove candidate $pair_c2 from $row $r at ".at_i($i)
-              if $Verbosity >= 2;
-          }
-          if (inarray($pair_c3,@{$s->{candidates}->[$i]})) {
-            $s->{candidates}->[$i] = [ grep { $pair_c3 != $_ } @{$s->{candidates}->[$i]} ];
-            status "remove candidate $pair_c3 from $row $r at ".at_i($i)
-              if $Verbosity >= 2;
-          }
-          if (inarray($pair_c4,@{$s->{candidates}->[$i]})) {
-            $s->{candidates}->[$i] = [ grep { $pair_c4 != $_ } @{$s->{candidates}->[$i]} ];
-            status "remove candidate $pair_c4 from $row $r at ".at_i($i)
-              if $Verbosity >= 2;
-          }
+          my $c = @{$s->{candidates}->[$i]};
+          $s->{candidates}->[$i] = [ grep { $pair_c1 != $_ } @{$s->{candidates}->[$i]} ];
+          status "remove candidates unless $pair_c1 from $row $r at ".at_i($i)
+            if $Verbosity >= 2 and @{$s->{candidates}->[$i]} != $c;
+          $c = @{$s->{candidates}->[$i]};
+          $s->{candidates}->[$i] = [ grep { $pair_c2 != $_ } @{$s->{candidates}->[$i]} ];
+          status "remove candidate $pair_c2 from $row $r at ".at_i($i)
+            if $Verbosity >= 2 and @{$s->{candidates}->[$i]} != $c;
+          $c = @{$s->{candidates}->[$i]};
+          $s->{candidates}->[$i] = [ grep { $pair_c3 != $_ } @{$s->{candidates}->[$i]} ];
+          status "remove candidate $pair_c3 from $row $r at ".at_i($i)
+            if $Verbosity >= 2 and @{$s->{candidates}->[$i]} != $c;
+          $c = @{$s->{candidates}->[$i]};
+          $s->{candidates}->[$i] = [ grep { $pair_c4 != $_ } @{$s->{candidates}->[$i]} ];
+          status "remove candidate $pair_c4 from $row $r at ".at_i($i)
+            if $Verbosity >= 2 and @{$s->{candidates}->[$i]} != $c;
         }
-      }
     }
   }
   $s;
@@ -861,7 +891,6 @@ sub uniq (@) {
 sub naked_triples {
   my $s = shift;
   for my $row (qw(row col squ)) {
-    ROW:
     for my $r (0..8) {
       no strict 'refs';
       my (%h, @tri);
@@ -870,10 +899,11 @@ sub naked_triples {
         next if @c > 3 or @c < 2; # 2 or 3
         push @tri, ({i=>$i,c=>$#c+1,b1=>$c[0],b2=>$c[1],b3=>$c[2]});
       }
+      # first check all tris
       my @tri_v = uniq($tri[0]->{b1},$tri[0]->{b2},$tri[0]->{b3},
-                       $tri[1]->{b1},$tri[1]->{b2},$tri[1]->{b3},
-                       $tri[2]->{b1},$tri[2]->{b2},$tri[2]->{b3},
-                      );
+                        $tri[1]->{b1},$tri[1]->{b2},$tri[1]->{b3},
+                        $tri[2]->{b1},$tri[2]->{b2},$tri[2]->{b3},
+                       );
       if (@tri == 3 and @tri_v == 3) {
         my $tri_i1 = $tri[0]->{i};
         my $tri_i2 = $tri[1]->{i};
@@ -881,42 +911,49 @@ sub naked_triples {
         my $tri_b1 = $tri_v[0];
         my $tri_b2 = $tri_v[1];
         my $tri_b3 = $tri_v[2];
-        #my $r = &{"which_".$row}($i);
-        next ROW if $s->{naked}->{$tri_i1}->{$tri_i2}->{$tri_i3};
-        status "found three naked_triples ($tri_b1,$tri_b2,$tri_b3) in $row $r at "
-          .at_i($tri_i1).", ".at_i($tri_i2).", ".at_i($tri_i3)
-          if $Verbosity >= 1;
-        $s->{naked}->{$tri_i1}->{$tri_i2}->{$tri_i3}++;
-        # delete it from the other candidates
-        for my $i (&{"i_".$row}($r)) {
-          if ($i != $tri_i1 and $i != $tri_i2 and $i != $tri_i3) {
-            if (inarray($tri_b1,@{$s->{candidates}->[$i]})) {
-              $s->{candidates}->[$i] = [ grep { $tri_b1 != $_ } @{$s->{candidates}->[$i]} ];
-              status "remove candidate $tri_b1 from $row $r at "
-                .at_i($i) if $Verbosity >= 2;
-            }
-            if (inarray($tri_b2,@{$s->{candidates}->[$i]})) {
-              $s->{candidates}->[$i] = [ grep { $tri_b2 != $_ } @{$s->{candidates}->[$i]} ];
-              status "remove candidate $tri_b2 from $row $r at "
-                .at_i($i) if $Verbosity >= 2;
-            }
-            if (inarray($tri_b3,@{$s->{candidates}->[$i]})) {
-              $s->{candidates}->[$i] = [ grep { $tri_b3 != $_ } @{$s->{candidates}->[$i]} ];
-              status "remove candidate $tri_b3 from $row $r at "
-                .at_i($i) if $Verbosity >= 2;
-            }
-          }
-        }
+        $s->_solve_ntri($tri_i1,$tri_i2,$tri_i3,$tri_b1,$tri_b2,$tri_b3,$row,$r);
+      } else {
+        ; # bla
       }
     }
   }
   $s;
 }
 
+sub _solve_ntri{
+  my ($s,$tri_i1,$tri_i2,$tri_i3,$tri_b1,$tri_b2,$tri_b3,$row,$r) = @_;
+  return if $s->{naked}->{$tri_i1}->{$tri_i2}->{$tri_i3};
+  status "found three naked_triples ($tri_b1,$tri_b2,$tri_b3) in $row $r at "
+    .at_i($tri_i1).", ".at_i($tri_i2).", ".at_i($tri_i3)
+      if $Verbosity >= 1;
+  $s->{naked}->{$tri_i1}->{$tri_i2}->{$tri_i3}++;
+  # delete it from the other candidates
+  no strict 'refs';
+  for my $i (&{"i_".$row}($r)) {
+    if ($i != $tri_i1 and $i != $tri_i2 and $i != $tri_i3) {
+      if (inarray($tri_b1,@{$s->{candidates}->[$i]})) {
+        $s->{candidates}->[$i] = [ grep { $tri_b1 != $_ } @{$s->{candidates}->[$i]} ];
+        status "remove candidate $tri_b1 from $row $r at "
+          .at_i($i) if $Verbosity >= 2;
+      }
+      if (inarray($tri_b2,@{$s->{candidates}->[$i]})) {
+        $s->{candidates}->[$i] = [ grep { $tri_b2 != $_ } @{$s->{candidates}->[$i]} ];
+        status "remove candidate $tri_b2 from $row $r at "
+          .at_i($i) if $Verbosity >= 2;
+      }
+      if (inarray($tri_b3,@{$s->{candidates}->[$i]})) {
+        $s->{candidates}->[$i] = [ grep { $tri_b3 != $_ } @{$s->{candidates}->[$i]} ];
+        status "remove candidate $tri_b3 from $row $r at "
+          .at_i($i) if $Verbosity >= 2;
+      }
+    }
+  }
+}
+
 sub naked_quads {
   my $s = shift;
   for my $row (qw(row col squ)) {
-    ROW:
+  ROW:
     for my $r (0..8) {
       no strict 'refs';
       my (%h, @tri);
@@ -978,6 +1015,42 @@ sub naked_quads {
 
 =pod
 
+=item RULE ->backtrack
+
+Try the rest. Pick one candidate (a pair if possible).
+Save state and solve. If fail, restore state and try next.
+
+=cut
+
+sub backtrack {
+  my $s = shift;
+  my ($min_i,$min_len) = (-1,10);
+  for my $i (0..80) {
+    if (!$s->{board}->[$i]
+        and @{$s->{candidates}->[$i]}
+        and @{$s->{candidates}->[$i]} < $min_len) {
+      $min_i = $i;
+      $min_len = @{$s->{candidates}->[$i]};
+    }
+  }
+  # save state and solve. if fail, restore state and try next.
+  return $s if $min_i == -1;
+  return $s if $min_len == 10;
+ RETRY:
+  $s->{saved_board} = $s->{board};
+  $s->{saved_candidates} = $s->{candidates};
+  $s->found($min_i, $s->{candidates}->[$min_i]->[0]);
+  if ($s->solve) {
+    $s->{board} = $s->{saved_board};
+    $s->{candidates} = $s->{saved_candidates};
+    unshift @{$s->{candidates}->[$min_i]};
+    goto RETRY;
+  }
+  $s
+}
+
+=pod
+
 =item solve
 
 Apply all rules until the board is filled => SUCCESS,
@@ -1030,15 +1103,16 @@ sub solve {
       }
     }
     $s->Show unless $opts{nogui};
-    if ($lasttry 
+    if ($lasttry
         and $solved < 81
         and $solved == count(@{$s->{board}})
         and $newcands == $cands)
     {
+      return 1 if $s->{saved_board};
       print "failed to solve Sudoku! Need more solver rules.\n",
         $solved, " solved, ", 81-$solved, " left, $newcands candidates\n";
       $s->ShowCands if $Verbosity >= 2;
-      return 0;
+      return 1;
     }
     if ($solved == count(@{$s->{board}}) and $newcands == $cands) {
       $lasttry++;
@@ -1053,7 +1127,7 @@ sub solve {
     }
     status ($solved, " solved, ", 81-$solved, " left, $cands candidates");
   }
-  return $solved == 81;
+  return $solved == 81 ? 0 : 2;
 }
 
 =pod
@@ -1148,24 +1222,25 @@ sub gui_init {
      -background  => 0xFFFFFF,
      -font        => $font,
     );
-  my $cs = 12;
+  my $cs = 10;
   my $font1 = Win32::GUI::Font->new
     (
      -outputprecision => OUT_TT_PRECIS,
      -family => FF_SWISS,
      -size   => $cs,
-     -weight => 100,
+     # -weight => 100,
     );
-  $CandWin = new Win32::GUI::Window
-    (
-     -name        => 'Candidates'
-     -title       => "Candidates",
-     -pos         => [$W->Left + $W->Width, $W->Top],
-     -size        => [10 + $cs * 27, 10 + $cs * 27],
-     -background  => 0xFFFFFF,
-     -onTerminate => sub { shift->Hide; },
-     -font        => $font1,
-    );
+  #$CandWin = new Win32::GUI::Window
+  #  (
+  #   -name        => 'Candidates'
+  #   -title       => "Candidates",
+  #   -pos         => [$W->Left + $W->Width, $W->Top],
+  #   -size        => [10 + $cs * 27, 10 + $cs * 27],
+  #   -background  => 0xFFFFFF,
+  #   -onTerminate => sub { shift->Hide; },
+  #   -font        => $font1,
+  #   -dialogui    => 1,
+  #  );
   #$Board->SetBkColor(0xFFFFFF);
   $Board->ScaleHeight;
   my $sb = $W->AddStatusBar(-name => "Status");
@@ -1180,7 +1255,7 @@ sub gui_init {
          -size  => [$ts,$ts],
          -notify => 1, #enable Click
          #-font  => $font,
-         -background     => 0xFFFFFF,
+         -background => which_squ($i) % 2 ? 0xEEEEEE : 0xFFFFFF,
          #-tip     => sub {
          #  my $ud = $W->UserData();
          #  my $G = $ud->{'game'};
@@ -1201,16 +1276,24 @@ sub gui_init {
            $ud->{'game'} = $G;
            $W->UserData($ud);
          },
-
         );
       for my $j (0..8) {
-        $CandWin->AddLabel
+        $Board->AddLabel
           (
-           -name  => "Label_{$i}_{$j}",
+           -name  => "Cand_{$i}_{$j}",
            -pos   => [5+($x*$cs*9)+($j%3)*$cs*3, 5+($y*$cs*9)+int($j/3)*$cs*3],
            -size  => [$cs, $cs],
-           #-font  => $font1,
-           -background => 0xFFFFFF,
+           -notify => 1, #enable Click
+           -font  => $font1,
+           -background => which_squ($i) % 2 ? 0xEEEEEE : 0xFFFFFF,
+           -onClick => sub {
+             my $ud = $W->UserData();
+             my $G = $ud->{'game'};
+             $G->found($i, $_[0]->Text());
+             $G->Show();
+             $ud->{'game'} = $G;
+             $W->UserData($ud);
+           },
            #-tip     => sub { join(",",$s->{candidates}->[$i]) },
            #-onClick => sub { status(join(",",$s->{candidates}->[$i])) }
           );
@@ -1254,15 +1337,14 @@ sub gui_init {
                 -title  => 'S&tep',
                 -onClick => sub { $Nextstep = $s->solve($Nextstep); $s->Show; 2}
                 );
-  if ($s->{cheating}) {
-    $W->AddButton(
+  $W->AddButton(
                 -pos   => [9*$ts + 20, $ts + 32 + 32],
                 -width => 65,
                 -name  => 'candidates',
                 -title  => 'Candidates',
                 -onClick => sub { $s->{showcands} = !$s->{showcands}; $s->ShowCands; 3}
                 );
-  }
+  $W->candidates->Hide unless $s->{cheating};
   $s->Show();
   $W;
 }
@@ -1319,10 +1401,10 @@ sub ShowCands {
   }
   for my $i (0 .. 80) {
     my @c = @{$s->{candidates}->[$i]};
-    if ($W) {
+    if ($W and $s->{showcands}) {
       for my $j (0..8) {
         my $c = $j < @c ? $c[$j] : " ";
-        $CandWin->{"Label_{$i}_{$j}"}->Text("$c");
+        $Board->{"Cand_{$i}_{$j}"}->Text("$c");
       }
     }
     if (!$W or $s->{showcands}) { # ascii art
@@ -1338,13 +1420,20 @@ sub ShowCands {
   if ($W and $s->{cheating}) {
     # flip status
     if ($s->{showcands}) {
-      $CandWin->Update;
-      $CandWin->Show;
-      $CandWin->SetForegroundWindow;
+      for my $i (0 .. 80) {
+        for my $j (0..8) {
+          $Board->{"Cand_{$i}_{$j}"}->Show;
+        }
+      }
     } else {
-      #while ($CandWin->DoEvents() != -1) {;}
-      $CandWin->Hide;
-      $W->SetForegroundWindow;
+      for my $i (0 .. 80) {
+        for my $j (0..8) {
+          $Board->{"Cand_{$i}_{$j}"}->Hide;
+        }
+      }
+      $Board->Show() if $Board;
+      $W->Show() if $W;
+      $W->Update() if $W;
     }
   }
   if (1) {
@@ -1619,4 +1708,4 @@ my $ret = $G->solve() if (!$W or $opts{solve});
 $G->Show() if (!$W or $opts{solve});
 $G->save($opts{save}) if $opts{save} and $opts{solve};
 $W->Dialog() if $W;
-$ret;
+exit $ret;
