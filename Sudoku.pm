@@ -1,14 +1,20 @@
 package Games::Sudoku::Win32;
 
 use strict;
-use vars;
+use vars qw(@ISA @EXPORT);
 use Win32::GUI;
 use Pod::Usage;
 use File::Basename;
+require Exporter;
+@ISA = qw(Exporter);
+@EXPORT = qw( OUT_TT_PRECIS FF_SWISS $W $Board $Menu $Verbosity $Nextstep which_row which_col which_squ);
+
 
 use constant OUT_TT_PRECIS => 4;
 use constant FF_SWISS => 32;
-my ($W, $Board, $Menu, $Nextstep, $Verbosity, %opts);
+my ($Nextstep);
+# export resp. alias to callers package
+my ($W, $Board, $Menu, $Verbosity);
 
 =pod
 
@@ -184,7 +190,23 @@ sub missing (@) {
 
 =over
 
-=item Games::Sudoku::Win32->new(1,2,3,4,5,6,7,8,9,0,0,0,0,...81);
+=item Games::Sudoku::Win32->new( [ \%opts, ] $board );
+
+Supported opts: verbose cheat nogui solve save
+
+$board: string with numbers and dots, the rest is ignored. As e.g.
+
+  my $board1 = <<eod;
+  .29 ..3 .4.
+  ... 647 ..2
+  4.. ..8 .7.
+  ... 8.. 3.7
+  ... .6. ...
+  5.7 ..9 ...
+  .1. 3.. ..6
+  2.. 481 ...
+  .7. 5.. 12.
+  eod
 
 =cut
 
@@ -195,21 +217,34 @@ sub new {
   my $args = { board      => [@board],
                candidates => [],
                rules      => [qw(one_missing one_candidate single_candidate
-                                 naked_pairs hidden_pairs hidden_triples
+                                 naked_pairs hidden_pairs
                                  locked_candidate_1 locked_candidate_2
-                                  hidden_quads backtrack
-                                )], #naked_triples naked_quads
+                                 hidden_quads backtrack
+                                )], #hidden_triples naked_triples naked_quads
                init       => count(@board),
              };
-  my $obj = bless $args, $s;
-  $Verbosity = 1 unless defined $Verbosity;
-  # print "init candidates:\n" unless $W;
+  my $G = bless $args, $s;
   if (@_) {
-    $obj->open(@_);
+    if (ref $_[0] eq 'HASH') {
+      $G->{opts} = shift;
+      $Verbosity = $G->{opts}->{verbose};
+      $G->{cheating} = 1 if $G->{opts}->{cheat};
+    }
   } else {
-    $obj->init_candidates();
+    $Verbosity = 1 unless defined $Verbosity;
   }
-  $obj;
+  if (@_) {
+    if (-e $_[0]) {
+      $G->open_file(@_);
+    } else {
+      $G->open(@_);
+    }
+  } else {
+    $G->{init}++;
+    $G->init_candidates();
+    undef $G->{init};
+  }
+  $G
 }
 
 =pod
@@ -296,9 +331,10 @@ sub board ($$;$) {
   }
 }
 
-
+# todo: while backtrack do not die, just return 0
 sub validate ($) {
   my $s = shift;
+  return if $s->{saved_board};
   my @board = @{$s->{board}};
   status "validate" if $Verbosity >= 2;
   for my $row (qw(row col squ)) {
@@ -340,7 +376,13 @@ sub found ($$$) {
   my $s = shift;
   my $i = shift;
   my $f = shift;
-  die "do not overwrite ".$s->board($i)." with $f at $i" if $s->board($i) and !$s->{init};
+  if ($s->board($i) and !$s->{init}) {
+    unless ($s->{saved_board}) {
+      die "do not overwrite ".$s->board($i)." with $f at $i" ;
+    } else {
+      return $s;
+    }
+  }
   # now also remove $f from the neighbor candidates, same col,row,squ
   for my $row (qw(row col squ)) {
     no strict 'refs';
@@ -349,6 +391,7 @@ sub found ($$$) {
       use strict 'refs';
       if ($j>80 or $j<0) {print "ERROR: $row $i=>$j\n"; next;}
       if (inarray($f,@l) and !$s->{init}) {
+        return $s if $s->{saved_board};
         $s->Show();
         die "$f already in $row at ".at_i($i)." [".join("",@l)."]";
       }
@@ -1033,19 +1076,39 @@ sub backtrack {
       $min_len = @{$s->{candidates}->[$i]};
     }
   }
-  # save state and solve. if fail, restore state and try next.
-  return $s if $min_i == -1;
+  return $s if $min_len == 1; # restart with one_candidate first
+  return $s if $min_i == -1;  # already solved, no candidates found
   return $s if $min_len == 10;
+  # save state and solve. if fail, restore state and try next.
  RETRY:
-  $s->{saved_board} = $s->{board};
-  $s->{saved_candidates} = $s->{candidates};
-  $s->found($min_i, $s->{candidates}->[$min_i]->[0]);
-  if ($s->solve) {
+  my $try = $s->{candidates}->[$min_i]->[0];
+  return $s unless $try; 
+  status "try backtrack $try at ".at_i($min_i) if $Verbosity >= 2;
+  #unless ($s->{saved_board}) {
+    $s->{saved_board} = [ @{$s->{board}} ]; # deep copy
+    $s->{saved_candidates} = [ @{$s->{candidates}} ];
+  #}
+  $s->found($min_i, $try);
+  if ($s->solve) { # exitcode 0 is for solved
     $s->{board} = $s->{saved_board};
     $s->{candidates} = $s->{saved_candidates};
-    unshift @{$s->{candidates}->[$min_i]};
-    goto RETRY;
+    # remove failed candidate
+    status "remove failed candidate $try at ".at_i($min_i).", try next"
+      if $Verbosity >= 2;
+    shift @{$s->{candidates}->[$min_i]};
+    if (@{$s->{candidates}->[$min_i]} == 1) {
+      $try = $s->{candidates}->[$min_i]->[0];
+      status "found remaining candidate $try at ".at_i($min_i)
+        if $Verbosity >= 1;
+      $s->found($min_i, $try);
+    } else {
+      goto RETRY;
+    }
+    #else search another candidate
+    #$s->backtrack();
   }
+  undef $s->{saved_board};
+  undef $s->{saved_candidates};
   $s
 }
 
@@ -1102,7 +1165,7 @@ sub solve {
         goto RULES; # restart
       }
     }
-    $s->Show unless $opts{nogui};
+    $s->Show unless $s->{opts}->{nogui};
     if ($lasttry
         and $solved < 81
         and $solved == count(@{$s->{board}})
@@ -1140,7 +1203,7 @@ sub gui_init {
   my $s = shift;
   my $props = shift;
   my $ts = 24;
-  my $framestyle = 0; # 'etched'; # 0
+  my $framestyle = 0; #'etched'; # 0
   my $size = $props->{size} || 9*$ts;
   if ($framestyle eq 'etched') {
     $size += 9*2 - 5;
@@ -1157,7 +1220,7 @@ sub gui_init {
      "> &Save"     => {-name => 'Save', -onClick => \&File_Save},
      "> &Quit"     => {-name => 'Quit', -onClick => sub { return -1; }},
      "&Options" => "&Options",
-     "> &Cheat" => => {-name => 'Cheat', -checked => $s->{cheating},
+     "> &Cheat" => => {-name => 'Cheat', -checked => $s->{opts}->{cheat},
                        -onClick => sub {
                          $Menu->{"Cheat"}->Checked($Menu->{"Cheat"}->Checked() ? 0 : 1);
                          my $ud = $W->UserData();
@@ -1228,7 +1291,7 @@ sub gui_init {
      -outputprecision => OUT_TT_PRECIS,
      -family => FF_SWISS,
      -size   => $cs,
-     # -weight => 100,
+     -weight => 100,
     );
   #$CandWin = new Win32::GUI::Window
   #  (
@@ -1344,7 +1407,7 @@ sub gui_init {
                 -title  => 'Candidates',
                 -onClick => sub { $s->{showcands} = !$s->{showcands}; $s->ShowCands; 3}
                 );
-  $W->candidates->Hide unless $s->{cheating};
+  $W->candidates->Hide unless $s->{opts}->{cheat};
   $s->Show();
   $W;
 }
@@ -1417,7 +1480,7 @@ sub ShowCands {
     }
   }
   print "\n\t"."-"x60 if !$W or $s->{showcands};
-  if ($W and $s->{cheating}) {
+  if ($W and $s->{opts}->{cheat}) {
     # flip status
     if ($s->{showcands}) {
       for my $i (0 .. 80) {
@@ -1669,10 +1732,15 @@ sub Help_Help {
 
 =cut
 
+1;
+__END__
+
 # Example if not loaded as Module
 # perl Sudoku.pm --v=2 --cheat 1.sudoku --solve --save=1.solution
+
 package main;
 use Getopt::Long;
+my ($W, $Board, $Menu, $Nextstep, %opts);
 
 $W = 0;
 GetOptions(\%opts,
@@ -1682,9 +1750,9 @@ GetOptions(\%opts,
            "solve!",
            "save=s",
           );
-$Verbosity = defined $opts{verbose} ? $opts{verbose} : 1;
-my $G = Games::Sudoku::Win32->new();
-$G->{cheating}=1 if $opts{cheat};
+# $Games::Sudoku::Win32::Verbosity = defined $opts{verbose} ? $opts{verbose} : 1;
+my $G = Games::Sudoku::Win32->new(\%opts);
+# $G->{cheating}=1 if $opts{cheat};
 my $board1 = <<eod;
 .29 ..3 .4.
 ... 647 ..2
