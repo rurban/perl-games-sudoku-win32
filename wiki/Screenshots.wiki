@@ -1,0 +1,9 @@
+#summary Screenshots
+
+=  Module Sudoku.pm only =
+
+https://code.google.com/p/perl-games-sudoku-win32/source/browse/trunk/screenshot-ori.png
+
+= From sample client test.pl =
+
+https://code.google.com/p/perl-games-sudoku-win32/source/browse/trunk/screenshot-test.png
